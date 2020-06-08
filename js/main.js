@@ -10,8 +10,11 @@ var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditio
 var DESCRIPTION = 'Описание предложения';
 var PHOTOS_LINKS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var WIDTH_BLOCK = document.querySelector('.map__pins').clientWidth;
-var VALUES_FOR_Y = [130, 630];
 var ELEMENT_COUNT = 8;
+var yPositionRange = {
+  'lowEdge': 130,
+  'highEdge': 630
+};
 
 var pathsToImages = ['img/avatars/user01.png', 'img/avatars/user02.png', 'img/avatars/user03.png', 'img/avatars/user04.png', 'img/avatars/user05.png', 'img/avatars/user06.png', 'img/avatars/user07.png', 'img/avatars/user08.png'];
 
@@ -51,7 +54,7 @@ function getRandomObject() {
     },
     'location': {
       'x': getRandomNumber(WIDTH_BLOCK),
-      'y': getRandomInteger(VALUES_FOR_Y[0], VALUES_FOR_Y[1])
+      'y': getRandomInteger(yPositionRange['lowEdge'], yPositionRange['highEdge'])
     }
   };
 
@@ -126,128 +129,53 @@ function getElementPin(sample, object) {
 function getElementCard(sample, object) {
   var newElement = sample.cloneNode(true);
 
-  // HTML коллекция всей детей newElement
-  var childrens = newElement.firstElementChild.children;
-  for (var i = 0; i < childrens.length; i++) {
-    // создаем селектор из последнего класса каждого chidlren
-    var selectorForSeachElement = '.' + childrens[i].classList[childrens[i].classList.length - 1];
-    // по этому селектору находим элемент и заполняем его
-    setElement(selectorForSeachElement);
-  }
+  newElement.querySelector('.popup__title').textContent = object['offer']['title'];
+  newElement.querySelector('.popup__text--address').textContent = object['offer']['address'];
+  newElement.querySelector('.popup__text--price').textContent = object['offer']['price'] + '\u20bd/ночь';
+  var types = {
+    'flat': 'Квартира',
+    'bungalo': 'Бунгало',
+    'house': 'Дом',
+    'palace': 'Дворец'
+  };
+  newElement.querySelector('.popup__type').textContent = types[object['offer']['type']];
+  newElement.querySelector('.popup__text--capacity').textContent = object['offer']['rooms'] + ' комнат для ' + object['offer']['guests'] + ' гостей';
+  newElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + object['offer']['checkin'] + ', выезд до ' + object['offer']['checkout'];
+  pushItemInList(newElement);
+  newElement.querySelector('.popup__description').textContent = object['offer']['description'];
+  pushImagesInPopupPhotos(newElement);
+  newElement.querySelector('.popup__avatar').setAttribute('src', object['author']['avatar']);
 
   return newElement.firstElementChild;
 
-  // функция находит элемент по селектору и в зависимости от селектора присваивает значение
-  // работает только внутри getElementCard()
-  function setElement(selector) {
-    var element = newElement.querySelector(selector);
-    switch (selector) {
-      case ('.popup__title'):
-        element.textContent = object['offer']['title'];
-        break;
-      case ('.popup__text--address'):
-        element.textContent = object['offer']['address'];
-        break;
-      case ('.popup__text--price'):
-        element.textContent = object['offer']['price'] + '\u20bd' + element.children[0].textContent;
-        break;
-      case ('.popup__type'):
-        element.textContent = getOfferType();
-        break;
-      case ('.popup__text--capacity'):
-        element.textContent = getCorrectString(object['offer']['rooms'], object['offer']['guests']);
-        break;
-      case ('.popup__text--time'):
-        element.textContent = 'Заезд после ' + object['offer']['checkin'] + ', выезд до ' + object['offer']['checkout'];
-        break;
-      case ('.popup__features'):
-        pushItemInList(element);
-        break;
-      case ('.popup__description'):
-        element.textContent = object['offer']['description'];
-        break;
-      case ('.popup__photos'):
-        pushImagesInPopupPhotos(element);
-        break;
-      case ('.popup__avatar'):
-        element.setAttribute('src', object['author']['avatar']);
-    }
-  }
-
-  // функция возвращает строку соответствующею типу предложения
-  // работает только внутри getElementCard()
-  function getOfferType() {
-    var offerType = object['offer']['type'];
-    if (offerType === 'flat') {
-      offerType = 'Квартира';
-    } else if (offerType === 'bungalo') {
-      offerType = 'Бунгало';
-    } else if (offerType === 'house') {
-      offerType = 'Дом';
-    } else if (offerType === 'palace') {
-      offerType = 'Дворец';
-    }
-    return offerType;
-  }
-
-  // функция создает список .popup__features на основе доступных удобств и скрывает пустые элементы списка
+  // функция создает список .popup__features на основе доступных удобств
   // работает только внутри getElementCard()
   function pushItemInList(element) {
-    var elementsFeatures = element.querySelectorAll('.popup__feature');
-    var countForSliceString = 31; // количество символов для slice() чтобы из класса каждого li получить последнее слово
-    for (var j = 0; j < elementsFeatures.length; j++) {
-      for (var k = 0; k < object['offer']['features'].length; k++) {
-        if (elementsFeatures[j].classList.value.slice(countForSliceString) === object['offer']['features'][k]) {
-          elementsFeatures[j].textContent = object['offer']['features'][k];
-          break;
-        }
-      }
-      if (!elementsFeatures[j].textContent) {
-        elementsFeatures[j].style.display = 'none';
-      }
+    var popupFeaturesElement = element.querySelector('.popup__features');
+    var fragment = document.createDocumentFragment();
+    for (var j = 0; j < object['offer']['features'].length; j++) {
+      var liElement = document.createElement('li');
+      liElement.setAttribute('class', 'popup__feature popup__feature--' + object['offer']['features'][j]);
+      liElement.textContent = object['offer']['features'][j];
+      fragment.appendChild(liElement);
     }
+    popupFeaturesElement.innerHTML = '';
+    popupFeaturesElement.appendChild(fragment);
   }
 
   // функция создает блок .popup__photos с фотографиями из списка offer.photos
   // работает только внутри getElementCard()
   function pushImagesInPopupPhotos(element) {
+    var popupPhotosElement = element.querySelector('.popup__photos');
     var popupPhotoElement = element.querySelector('.popup__photo');
     var fragment = document.createDocumentFragment();
     for (var l = 0; l < object['offer']['photos'].length; l++) {
       popupPhotoElement.setAttribute('src', object['offer']['photos'][l]);
       fragment.appendChild(popupPhotoElement.cloneNode(true));
     }
-    element.innerHTML = '';
-    element.appendChild(fragment);
+    popupPhotosElement.innerHTML = '';
+    popupPhotosElement.appendChild(fragment);
   }
-}
-
-/*
-* функция для получения строки с количеством гостей и комнат с правильным окончанием
-* Например: 2 комнаты для 3 гостей, 1 комната для 1 гостя
-*/
-function getCorrectString(countRoom, countGuest) {
-  var strings = [];
-  strings[0] = countRoom;
-  strings[2] = countGuest;
-  var stringsRooms = [' комната для ', ' комнаты для ', ' комнат для '];
-  countRoom = Math.abs(countRoom) % 100;
-  var numberOne = countRoom % 10;
-  if (countRoom > 10 && countRoom < 20) {
-    strings[1] = stringsRooms[2];
-  } else if (numberOne > 1 && numberOne < 5) {
-    strings[1] = stringsRooms[1];
-  } else if (numberOne === 1) {
-    strings[1] = stringsRooms[0];
-  } else {
-    strings[1] = stringsRooms[2];
-  }
-  if (countGuest === 1) {
-    strings[3] = ' гостя';
-  } else {
-    strings[3] = ' гостей';
-  }
-  return strings.join('');
 }
 
 /*
