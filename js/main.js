@@ -11,24 +11,115 @@ var DESCRIPTION = 'Описание предложения';
 var PHOTOS_LINKS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var WIDTH_BLOCK = document.querySelector('.map__pins').clientWidth;
 var ELEMENT_COUNT = 8;
+var WIDTH_MARK = 65;
+var HEIGHT_MARK = 82;
+
+var regimeWork = {
+  activeMode: 'active',
+  inactiveMode: 'inactive'
+};
 var yPositionRange = {
   'lowEdge': 130,
   'highEdge': 630
 };
-
 var pathsToImages = ['img/avatars/user01.png', 'img/avatars/user02.png', 'img/avatars/user03.png', 'img/avatars/user04.png', 'img/avatars/user05.png', 'img/avatars/user06.png', 'img/avatars/user07.png', 'img/avatars/user08.png'];
+var mapPinMainElement = document.querySelector('.map__pin--main');
+var addressElement = document.querySelector('#address');
 
-// переключает карту из неактивного состояния в активное (временно)
-document.querySelector('.map').classList.remove('map--faded');
+// состояние страницы по-умолчанию:
+// - заполненый инпут address
+setAddressValue(regimeWork.inactiveMode, mapPinMainElement, addressElement);
+//  - неактивное состояние
+switchPageInactive(true);
+
+// переход в активное состояние
+mapPinMainElement.addEventListener('mousedown', function (evt) {
+  if (evt.button === 0) {
+    switchPageInactive(false);
+    setAddressValue(regimeWork.activeMode, mapPinMainElement, addressElement);
+  }
+});
+mapPinMainElement.addEventListener('keydown', function (evt) {
+  if (evt.key === 'Enter') {
+    switchPageInactive(false);
+    setAddressValue(regimeWork.activeMode, mapPinMainElement, addressElement);
+  }
+});
 
 // шаблон для метки на карте
-var templatePin = document.querySelector('#pin').content;
+// var templatePin = document.querySelector('#pin').content;
 
 // шаблон карточки
-var templateCard = document.querySelector('#card').content;
+// var templateCard = document.querySelector('#card').content;
 
 // выводит ELEMENT_COUNT элементов на страницу
-pushElementsInPage(templatePin, templateCard, ELEMENT_COUNT);
+// pushElementsInPage(templatePin, templateCard, ELEMENT_COUNT);
+
+/*
+* переключает страницу в неактивное состояние и из неактивного в активное
+*/
+function switchPageInactive(boolean) {
+  var mapElement = document.querySelector('.map');
+  var adFormElement = document.querySelector('.ad-form');
+  var mapFiltersElement = document.querySelector('.map__filters');
+
+  // true переводит в неактивное состояние:
+  if (boolean) {
+    // проверяем если блок .map содержит .map--faded, если нет - добавляем
+    if (!mapElement.classList.contains('map--faded')) {
+      mapElement.classList.add('map--faded');
+    }
+    // проверяем если блок .ad-form содержит .ad-form-disabled, если нет - добавляем
+    if (!adFormElement.classList.contains('ad-form--disabled')) {
+      adFormElement.classList.add('ad-form--disabled');
+    }
+    // вешаем disabled на все инпуты и select формы .ad-form
+    setAttributeDisable(adFormElement.querySelectorAll('input'));
+    setAttributeDisable(adFormElement.querySelectorAll('select'));
+    // вешаем disabled на все инпуты и select формы .map__filters
+    setAttributeDisable(mapFiltersElement.querySelectorAll('input'));
+    setAttributeDisable(mapFiltersElement.querySelectorAll('select'));
+  } else if (!boolean) {
+    // false переводит в активное состояние:
+    mapElement.classList.remove('map--faded');
+    adFormElement.classList.remove('ad-form--disabled');
+    // удаляем disabled на все инпуты и select формы .ad-form
+    removeAttributeDisable(adFormElement.querySelectorAll('input'));
+    removeAttributeDisable(adFormElement.querySelectorAll('select'));
+    // удаляем disabled на все инпуты и select формы .map__filters
+    removeAttributeDisable(mapFiltersElement.querySelectorAll('input'));
+    removeAttributeDisable(mapFiltersElement.querySelectorAll('select'));
+  }
+
+  function setAttributeDisable(nodes) {
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].setAttribute('disabled', true);
+    }
+  }
+
+  function removeAttributeDisable(nodes) {
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].removeAttribute('disabled');
+    }
+  }
+}
+
+/*
+* заполняет значение инпута address
+*/
+function setAddressValue(mode, mainPin, inputAddress) {
+  var leftValue = parseInt(mainPin.style.left, 10);
+  var topValue = parseInt(mainPin.style.top, 10);
+  if (mode === 'inactive') {
+    // если страница в неактивном режиме то вычисляются координаты серидины метки
+    // в неактивном высота и ширина метки одинаковы
+    inputAddress.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (Math.round(topValue + (WIDTH_MARK / 2)));
+  }
+  if (mode === 'active') {
+    // если страница в активном режиме то вычисляются координаты острого конца метки
+    inputAddress.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
+  }
+}
 
 /*
 * генерирует мок
@@ -204,3 +295,12 @@ function pushElementsInPage(samplePin, sampleCard, count) {
   // вставляет на страницу метки для карты
   mapPins.appendChild(fragment);
 }
+
+// test
+// var mapPins = document.querySelector('.map__pins');
+// mapPins.addEventListener('mousemove', function (evt) {
+//   console.log(evt.offsetX, evt.offsetY);
+// })
+// var div = document.createElement('div');
+// div.style = 'width: 1px; height: 1px; background-color: green; position: absolute; left: 603px; top: 408px;z-index: 1000';
+// mapPins.appendChild(div)
