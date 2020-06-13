@@ -6,6 +6,25 @@ window.formPage = (function () {
 
   var addressElement = document.querySelector('#address');
 
+  // синхронизация Типа жилья с Ценой за ночь
+  var typeElement = document.querySelector('#type'); // select тип жилья
+  var priceElement = document.querySelector('#price'); // инпут Цена за ночь
+  var minPriceForHouse = {
+    'bungalo': 0,
+    'flat': 1000,
+    'house': 5000,
+    'palace': 10000
+  };
+
+  typeElement.addEventListener('input', onTypeElementInput);
+
+  // синхронизация Время заезда и Время выезда
+  var timeInElement = document.querySelector('#timein');
+  var timeOutElement = document.querySelector('#timeout');
+
+  timeInElement.addEventListener('input', onTimeElementInput);
+  timeOutElement.addEventListener('input', onTimeElementInput);
+
   // синхронизация инпута Количество комнат и инпута Количество мест
   var roomNumberElement = document.querySelector('#room_number');
   var capacityElement = document.querySelector('#capacity');
@@ -31,6 +50,22 @@ window.formPage = (function () {
         optionsElements[i].removeAttribute('disabled');
       }
     }
+  }
+
+  function onTypeElementInput(evt) {
+    priceElement.setAttribute('min', minPriceForHouse[evt.target.value]);
+    priceElement.setAttribute('placeholder', minPriceForHouse[evt.target.value]);
+  }
+
+  function onTimeElementInput(evt) {
+    var id = evt.target.id;
+    var select;
+    if (id === 'timein') {
+      select = timeOutElement;
+    } else if (id === 'timeout') {
+      select = timeInElement;
+    }
+    select.value = evt.target.value;
   }
 
   return {
