@@ -68,10 +68,43 @@ window.map = (function () {
         for (var k = 0; k < randomsObjects.length; k++) {
           if (randomsObjects[k].author.avatar === stringIndentifyPin) {
             var cardElement = window.card.getElementCard(randomsObjects[k]);
+
+            // реализация закрытия карточки
+            cardElement.querySelector('.popup__close').addEventListener('click', onPopupClick);
+            document.addEventListener('keydown', onPopupEscape);
+
+            // выводит карточку на страницу
             mapPins.insertAdjacentElement('afterend', cardElement);
+
+            // карточка открыта удаляем обработчки на метки
+            for (var l = 0; l < mapPinsElements.length; l++) {
+              mapPinsElements[l].removeEventListener('click', onPinClick);
+              mapPinsElements[l].removeEventListener('keydown', onPinKeyDown);
+            }
           }
         }
 
+      }
+
+      // обработчики закрытия карточки по клику на крестике
+      // и нажатия кнопки Escape
+      function onPopupClick() {
+        closeCard();
+      }
+
+      function onPopupEscape(evt) {
+        if (evt.key === 'Escape') {
+          closeCard();
+        }
+      }
+
+      function closeCard() {
+        document.querySelector('.map__card').style.display = 'none';
+        // карточка закрыта, добавляем обработчики на метки
+        for (var t = 0; t < mapPinsElements.length; t++) {
+          mapPinsElements[t].addEventListener('click', onPinClick);
+          mapPinsElements[t].addEventListener('keydown', onPinKeyDown);
+        }
       }
     },
 
