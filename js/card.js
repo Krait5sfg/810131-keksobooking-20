@@ -29,7 +29,27 @@ window.card = (function () {
       pushImagesInPopupPhotos(newElement);
       newElement.querySelector('.popup__avatar').setAttribute('src', object['author']['avatar']);
 
+      // реализация закрытия карточки
+      newElement.querySelector('.popup__close').addEventListener('click', onPopupClick);
+      document.addEventListener('keydown', onPopupEscape);
+
       return newElement.firstElementChild;
+
+      // обработчик закрытия карточки по клику на крестике
+      // и нажатия кнопки Escape
+      function onPopupClick() {
+        closeCard();
+      }
+
+      function onPopupEscape(evt) {
+        if (evt.key === 'Escape') {
+          closeCard();
+        }
+      }
+
+      function closeCard() {
+        document.querySelector('.map__card').style.display = 'none';
+      }
 
       // функция создает список .popup__features на основе доступных удобств
       // работает только внутри getElementCard()
