@@ -10,9 +10,6 @@ window.map = (function () {
       // шаблон метки на карте
       var templatePin = document.querySelector('#pin').content;
 
-      // шаблон карточки -- комментируем до след задания
-      // var templateCard = document.querySelector('#card').content;
-
       // место вставки элементов (меток на карте)
       var mapPins = document.querySelector('.map__pins');
 
@@ -28,8 +25,8 @@ window.map = (function () {
         fragment.appendChild(newElement);
       }
 
-      // вставляет карточку на страницу -- комментируем до след задания
-      // mapPins.insertAdjacentElement('afterend', getElementCard(templateCard, randomsObjects[0]));
+      // вставляет карточку на карту
+      // mapPins.insertAdjacentElement('afterend', window.card.getElementCard(randomsObjects[0]));
 
       // вставляет на страницу метки для карты
       mapPins.appendChild(fragment);
