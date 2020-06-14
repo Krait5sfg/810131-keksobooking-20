@@ -28,27 +28,40 @@ window.formPage = (function () {
   // синхронизация инпута Количество комнат и инпута Количество мест
   var roomNumberElement = document.querySelector('#room_number');
   var capacityElement = document.querySelector('#capacity');
-  var optionsElements = capacityElement.children;
   var countRoom = 1;
+  var countGuest = 1;
+  var wrongMessage = '';
 
-  setAttributeDisableOnCapacity();
+  roomNumberElement.addEventListener('input', onRoomNumberElementAndCapacityElementInput);
+  capacityElement.addEventListener('input', onRoomNumberElementAndCapacityElementInput);
 
-  roomNumberElement.addEventListener('input', function () {
-    countRoom = parseInt(roomNumberElement.value, 10);
-    setAttributeDisableOnCapacity();
-  });
+  // устанавливает сообщение об ошибке в зависимости от значения поля Количество комнат
+  // вызывается в обработчике события input
+  function getWrongMessage() {
+    var errorMessage = '';
+    if (countRoom === 1) {
+      errorMessage = '1 комната — для 1 гостя';
+    } else if (countRoom === 2) {
+      errorMessage = '2 комнаты — для 2 гостей или для 1 гостя';
+    } else if (countRoom === 3) {
+      errorMessage = '3 комнаты — для 3 гостей, для 2 гостей или для 1 гостя';
+    } else if (countRoom === 100) {
+      errorMessage = '100 комнат — не для гостей';
+    }
+    return errorMessage;
+  }
 
-  // проверяет поле в Количество комнат и в зависимости от значения блокирует или разблокирует
-  // поля в Количестве гостей
-  function setAttributeDisableOnCapacity() {
-    for (var i = 0; i < optionsElements.length; i++) {
-      var fieldValue = parseInt(optionsElements[i].value, 10);
-      optionsElements[i].setAttribute('disabled', true);
-      if (fieldValue <= countRoom && fieldValue !== 0 && countRoom !== 100) {
-        optionsElements[i].removeAttribute('disabled');
-      } else if (fieldValue === 0 && countRoom === 100) {
-        optionsElements[i].removeAttribute('disabled');
-      }
+  function onRoomNumberElementAndCapacityElementInput(evt) {
+    if (evt.target.id === 'room_number') {
+      countRoom = parseInt(evt.target.value, 10);
+    } else {
+      countGuest = parseInt(evt.target.value, 10);
+    }
+    if (countGuest > countRoom || countRoom === 100 && countGuest !== 0 || countRoom !== 100 && countGuest === 0) {
+      wrongMessage = getWrongMessage();
+      capacityElement.setCustomValidity(wrongMessage);
+    } else {
+      capacityElement.setCustomValidity('');
     }
   }
 
