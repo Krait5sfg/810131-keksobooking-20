@@ -11,19 +11,30 @@
   switchPageRegime(isPageActiveFlag);
 
   // переход в активное состояние при нажатии на элементе
-  mapPinMainElement.addEventListener('mousedown', onMapPinMainElementPress);
-  mapPinMainElement.addEventListener('keydown', onMapPinMainElementPress);
+  mapPinMainElement.addEventListener('mousedown', onMapPinMainElementClick);
+  mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
 
-  // обработчик на элемент по клику мыши или по нажатию Enter
-  function onMapPinMainElementPress(evt) {
-    if (evt.button === 0 || evt.key === 'Enter') {
-      isPageActiveFlag = true;
-      switchPageRegime(isPageActiveFlag);
-      window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
-
-      mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementPress);
-      mapPinMainElement.removeEventListener('keydown', onMapPinMainElementPress);
+  // обработчики на элемент по клику мыши или по нажатию Enter
+  function onMapPinMainElementEnter(evt) {
+    if (evt.key === 'Enter') {
+      switchToActiveModePage();
     }
+  }
+
+  function onMapPinMainElementClick(evtClick) {
+    if (evtClick.button === 0) {
+      switchToActiveModePage();
+    }
+  }
+
+  // переключает страницу в активный режим
+  function switchToActiveModePage() {
+    isPageActiveFlag = true;
+    switchPageRegime(isPageActiveFlag);
+    window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
+
+    mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementClick);
+    mapPinMainElement.removeEventListener('keydown', onMapPinMainElementEnter);
   }
 
   // переключает страницу в неактивное состояние и из неактивного в активное
