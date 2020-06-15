@@ -5,6 +5,7 @@ window.map = (function () {
   var ELEMENT_COUNT = 8; // количество элементов которое надо сгенерировать на карте
 
   return {
+
     // Отрисовывает метки на карте
     pushElementsInPage: function () {
       // шаблон метки на карте
@@ -29,13 +30,16 @@ window.map = (function () {
       mapPins.appendChild(fragment);
 
       // реализация отображения карточки при клике на метку
+      // и перемещения основной метки
       var mapPinsElements = document.querySelectorAll('.map__pin');
       if (mapPinsElements) {
         for (var j = 0; j < mapPinsElements.length; j++) {
-          // убираем элемент основную метку
+
+          // если метка основная вешаем на нее обработчик перемещения
           if (mapPinsElements[j].classList.contains('map__pin--main')) {
-            continue;
+            mapPinsElements[j].addEventListener('mousedown', onMapPinMainMouseDown);
           } else {
+
             // на все другие вешаем событие click которое сравнивает строку изображение аватара
             // и изображение в массиве объектов
             mapPinsElements[j].addEventListener('click', onPinClick);
@@ -100,10 +104,57 @@ window.map = (function () {
 
       function closeCard() {
         document.querySelector('.map__card').style.display = 'none';
-        // карточка закрыта, добавляем обработчики на метки
+
+        // карточка закрыта, добавляем обработчики на метки (кроме основной)
         for (var t = 0; t < mapPinsElements.length; t++) {
-          mapPinsElements[t].addEventListener('click', onPinClick);
-          mapPinsElements[t].addEventListener('keydown', onPinKeyDown);
+          if (!mapPinsElements[t].classList.contains('map__pin--main')) {
+            mapPinsElements[t].addEventListener('click', onPinClick);
+            mapPinsElements[t].addEventListener('keydown', onPinKeyDown);
+          }
+        }
+      }
+
+      // обработчик нажатия мыши на основную метку
+      function onMapPinMainMouseDown(evtMouseDown) {
+        evtMouseDown.preventDefault();
+        var mapPinMainElement = document.querySelector('.map__pin--main');
+
+        // стартовые координаты
+        var startCoords = {
+          x: evtMouseDown.clientX,
+          y: evtMouseDown.clientY
+        };
+
+        mapPins.addEventListener('mousemove', onMapMouseMove);
+        mapPins.addEventListener('mouseup', onMapMouseUp);
+
+        function onMapMouseMove(evtMove) {
+          evtMove.preventDefault();
+
+          // смещение
+          var shift = {
+            x: startCoords.x - evtMove.clientX,
+            y: startCoords.y - evtMove.clientY
+          };
+
+          mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
+          mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
+
+          // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
+          // вычисления идут от левого верхнего угла метки
+          window.formPage.setAddressValue(true, mapPinMainElement, window.formPage.addressElement);
+
+          startCoords = {
+            x: evtMove.clientX,
+            y: evtMove.clientY
+          };
+        }
+
+        function onMapMouseUp(evtUp) {
+          evtUp.preventDefault();
+
+          mapPins.removeEventListener('mousemove', onMapMouseMove);
+          mapPins.removeEventListener('mouseup', onMapMouseUp);
         }
       }
     },
