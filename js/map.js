@@ -3,6 +3,7 @@
 window.map = (function () {
 
   var ELEMENT_COUNT = 8; // количество элементов которое надо сгенерировать на карте
+  var mapElement = document.querySelector('.map');
 
   return {
 
@@ -62,6 +63,7 @@ window.map = (function () {
 
       function openCard(evt) {
         var targetElement;
+        // проверяет где произошло событие (img или button)
         if (evt.target.nodeName === 'BUTTON') {
           targetElement = evt.target.querySelector('img');
         } else {
@@ -77,14 +79,13 @@ window.map = (function () {
             cardElement.querySelector('.popup__close').addEventListener('click', onPopupClick);
             document.addEventListener('keydown', onPopupEscape);
 
+            // если карточка открыта - удаляем
+            if (document.querySelector('.map__card')) {
+              closeCard();
+            }
+
             // выводит карточку на страницу
             mapPins.insertAdjacentElement('afterend', cardElement);
-
-            // карточка открыта удаляем обработчки на метки
-            for (var l = 0; l < mapPinsElements.length; l++) {
-              mapPinsElements[l].removeEventListener('click', onPinClick);
-              mapPinsElements[l].removeEventListener('keydown', onPinKeyDown);
-            }
           }
         }
 
@@ -103,15 +104,8 @@ window.map = (function () {
       }
 
       function closeCard() {
-        document.querySelector('.map__card').style.display = 'none';
-
-        // карточка закрыта, добавляем обработчики на метки (кроме основной)
-        for (var t = 0; t < mapPinsElements.length; t++) {
-          if (!mapPinsElements[t].classList.contains('map__pin--main')) {
-            mapPinsElements[t].addEventListener('click', onPinClick);
-            mapPinsElements[t].addEventListener('keydown', onPinKeyDown);
-          }
-        }
+        // удаляет карточку
+        mapElement.removeChild(document.querySelector('.map__card'));
       }
 
       // обработчик нажатия мыши на основную метку
