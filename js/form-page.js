@@ -17,6 +17,13 @@ window.formPage = (function () {
     palace: 10000
   };
 
+  var wrongMessage = {
+    1: '1 комната — для 1 гостя',
+    2: '2 комнаты — для 2 гостей или для 1 гостя',
+    3: '3 комнаты — для 3 гостей, для 2 гостей или для 1 гостя',
+    100: '100 комнат — не для гостей'
+  };
+
   typeElement.addEventListener('input', onTypeElementInput);
 
   // синхронизация Время заезда и Время выезда
@@ -31,26 +38,9 @@ window.formPage = (function () {
   var capacityElement = document.querySelector('#capacity');
   var countRoom = 1;
   var countGuest = 1;
-  var wrongMessage = '';
 
   roomNumberElement.addEventListener('input', onRoomNumberElementAndCapacityElementInput);
   capacityElement.addEventListener('input', onRoomNumberElementAndCapacityElementInput);
-
-  // устанавливает сообщение об ошибке в зависимости от значения поля Количество комнат
-  // вызывается в обработчике события input
-  function getWrongMessage() {
-    var errorMessage = '';
-    if (countRoom === 1) {
-      errorMessage = '1 комната — для 1 гостя';
-    } else if (countRoom === 2) {
-      errorMessage = '2 комнаты — для 2 гостей или для 1 гостя';
-    } else if (countRoom === 3) {
-      errorMessage = '3 комнаты — для 3 гостей, для 2 гостей или для 1 гостя';
-    } else if (countRoom === 100) {
-      errorMessage = '100 комнат — не для гостей';
-    }
-    return errorMessage;
-  }
 
   function onRoomNumberElementAndCapacityElementInput(evt) {
     if (evt.target.id === 'room_number') {
@@ -59,8 +49,7 @@ window.formPage = (function () {
       countGuest = parseInt(evt.target.value, 10);
     }
     if (countGuest > countRoom || countRoom === 100 && countGuest !== 0 || countRoom !== 100 && countGuest === 0) {
-      wrongMessage = getWrongMessage();
-      capacityElement.setCustomValidity(wrongMessage);
+      capacityElement.setCustomValidity(wrongMessage[countRoom]);
     } else {
       capacityElement.setCustomValidity('');
     }
