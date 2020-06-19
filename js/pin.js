@@ -16,13 +16,13 @@ window.pin = (function () {
       var offsetY = 70;
 
       // координаты метки с учетом смещения
-      mapPin.style.left = object['location']['x'] - offsetX + 'px';
-      mapPin.style.top = object['location']['y'] - offsetY + 'px';
+      mapPin.style.left = object.location.x - offsetX + 'px';
+      mapPin.style.top = object.location.y - offsetY + 'px';
 
       // путь к картинке
-      img.setAttribute('src', object['author']['avatar']);
+      img.setAttribute('src', object.author.avatar);
       // alt картинки
-      img.setAttribute('alt', object['offer']['title']);
+      img.setAttribute('alt', object.offer.title);
 
       return newElement;
     },

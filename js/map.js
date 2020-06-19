@@ -2,8 +2,13 @@
 // метки для карты
 window.map = (function () {
 
-  var ELEMENT_COUNT = 8; // количество элементов которое надо сгенерировать на карте
   var mapElement = document.querySelector('.map');
+
+  // переменная для меток на карте, заполнится после активации страницы
+  var mapPinsElements = [];
+
+  // переменная для активной метки, значение появляется при клике на метку
+  var activeElement;
 
   return {
 
@@ -15,39 +20,11 @@ window.map = (function () {
       // место вставки элементов (меток на карте)
       var mapPins = document.querySelector('.map__pins');
 
-      // фрагмент
-      var fragment = document.createDocumentFragment();
+      // массив с объектами полученными с сервера
+      var objects = [];
 
-      // массив с моками
-      var randomsObjects = [];
-
-      for (var i = 0; i < ELEMENT_COUNT; i++) {
-        randomsObjects[i] = window.data.getRandomObject();
-        var newElement = window.pin.getElementPin(templatePin, randomsObjects[i]);
-        fragment.appendChild(newElement);
-      }
-
-      // вставляет на страницу метки для карты
-      mapPins.appendChild(fragment);
-
-      // реализация отображения карточки при клике на метку
-      // и перемещения основной метки
-      var mapPinsElements = document.querySelectorAll('.map__pin');
-      if (mapPinsElements) {
-        for (var j = 0; j < mapPinsElements.length; j++) {
-
-          // если метка основная вешаем на нее обработчик перемещения
-          if (mapPinsElements[j].classList.contains('map__pin--main')) {
-            mapPinsElements[j].addEventListener('mousedown', onMapPinMainMouseDown);
-          } else {
-
-            // на все другие вешаем событие click которое сравнивает строку изображение аватара
-            // и изображение в массиве объектов
-            mapPinsElements[j].addEventListener('click', onPinClick);
-            mapPinsElements[j].addEventListener('keydown', onPinKeyDown);
-          }
-        }
-      }
+      // получение данных с сервера, onLoad создает метки из этих данных
+      window.backend.load(onLoad, onError);
 
       // обработчик при клике на метку или при нажатии Enter на метку
       function onPinClick(evt) {
@@ -65,21 +42,36 @@ window.map = (function () {
         var targetElement;
         // проверяет где произошло событие (img или button)
         if (evt.target.nodeName === 'BUTTON') {
+
+          // если button - тогда это активный элемент, на него будем вешать класс map__pin--active
+          activeElement = evt.target;
+
+          // и находим дочерний img
           targetElement = evt.target.querySelector('img');
         } else {
+
+          // если img, тогда активный элемент его родитель
+          activeElement = evt.target.parentNode;
           targetElement = evt.target;
         }
-        var indexString = targetElement.src.indexOf('img');
-        var stringIndentifyPin = targetElement.src.slice(indexString);
-        for (var k = 0; k < randomsObjects.length; k++) {
-          if (randomsObjects[k].author.avatar === stringIndentifyPin) {
-            var cardElement = window.card.getElementCard(randomsObjects[k]);
+
+        // находим какая метка какому соответствует объекту по alt метки
+        var alt = targetElement.alt;
+        var startIndexCount = 1;
+        for (var k = 0; k < objects.length; k++) {
+
+          // начиная с элемента с индексом 1 удаляем со всем меток массива mapPinsElements класс map__pin--active
+          mapPinsElements[startIndexCount].classList.remove('map__pin--active');
+          startIndexCount++;
+
+          if (objects[k].offer.title === alt) {
+            var cardElement = window.card.getElementCard(objects[k]);
 
             // реализация закрытия карточки
             cardElement.querySelector('.popup__close').addEventListener('click', onPopupClick);
             document.addEventListener('keydown', onPopupEscape);
 
-            // если карточка открыта - удаляем
+            // если карточка уже открыта то при клике на другую метку текущая карточка закроется
             if (document.querySelector('.map__card')) {
               closeCard();
             }
@@ -89,6 +81,8 @@ window.map = (function () {
           }
         }
 
+        // добавляем текущему активному элементу map__pin--active
+        activeElement.classList.add('map__pin--active');
       }
 
       // обработчики закрытия карточки по клику на крестике
@@ -106,6 +100,9 @@ window.map = (function () {
       function closeCard() {
         // удаляет карточку
         mapElement.removeChild(document.querySelector('.map__card'));
+
+        // удаляем map__pin--active с метки
+        activeElement.classList.remove('map__pin--active');
       }
 
       // обработчик нажатия мыши на основную метку
@@ -150,6 +147,42 @@ window.map = (function () {
           mapPins.removeEventListener('mousemove', onMapMouseMove);
           mapPins.removeEventListener('mouseup', onMapMouseUp);
         }
+      }
+
+      // функция получает данные с сервера, выводит на основании данных метки на карту
+      // вешает события на обычную метку и основную
+      function onLoad(response) {
+        var fragment = document.createDocumentFragment();
+        for (var i = 0; i < response.length; i++) {
+          objects[i] = response[i];
+          var newElement = window.pin.getElementPin(templatePin, objects[i]);
+          fragment.appendChild(newElement);
+        }
+        mapPins.appendChild(fragment);
+
+        // реализация отображения карточки при клике на метку
+        // и перемещения основной метки
+        mapPinsElements = document.querySelectorAll('.map__pin'); // массив с метками
+
+        if (mapPinsElements) {
+          for (var j = 0; j < mapPinsElements.length; j++) {
+
+            // если метка основная вешаем на нее обработчик перемещения
+            if (mapPinsElements[j].classList.contains('map__pin--main')) {
+              mapPinsElements[j].addEventListener('mousedown', onMapPinMainMouseDown);
+            } else {
+
+              // на все другие вешаем событие click которое сравнивает строку изображение аватара
+              // и изображение в массиве объектов
+              mapPinsElements[j].addEventListener('click', onPinClick);
+              mapPinsElements[j].addEventListener('keydown', onPinKeyDown);
+            }
+          }
+        }
+      }
+
+      function onError(error) {
+        throw new Error(error);
       }
     },
 

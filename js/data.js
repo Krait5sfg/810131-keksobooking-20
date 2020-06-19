@@ -1,5 +1,5 @@
 'use strict';
-// модуль для создания данных
+// модуль для создания рандомных данных
 window.data = (function () {
 
   var TITLE = 'Заголовок предложения';
@@ -15,8 +15,8 @@ window.data = (function () {
   var WIDTH_BLOCK = document.querySelector('.map__pins').clientWidth;
 
   var yPositionRange = {
-    'lowEdge': 130,
-    'highEdge': 630
+    lowEdge: 130,
+    highEdge: 630
   };
   var pathsToImages = ['img/avatars/user01.png', 'img/avatars/user02.png', 'img/avatars/user03.png', 'img/avatars/user04.png', 'img/avatars/user05.png', 'img/avatars/user06.png', 'img/avatars/user07.png', 'img/avatars/user08.png'];
 
@@ -43,7 +43,7 @@ window.data = (function () {
         },
         'location': {
           'x': window.util.getRandomNumber(WIDTH_BLOCK),
-          'y': window.util.getRandomInteger(yPositionRange['lowEdge'], yPositionRange['highEdge'])
+          'y': window.util.getRandomInteger(yPositionRange.lowEdge, yPositionRange.highEdge)
         }
       };
       return object;

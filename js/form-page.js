@@ -1,4 +1,5 @@
 'use strict';
+// модуль основной формы
 window.formPage = (function () {
 
   var WIDTH_MARK = 65;
@@ -10,10 +11,10 @@ window.formPage = (function () {
   var typeElement = document.querySelector('#type'); // select тип жилья
   var priceElement = document.querySelector('#price'); // инпут Цена за ночь
   var minPriceForHouse = {
-    'bungalo': 0,
-    'flat': 1000,
-    'house': 5000,
-    'palace': 10000
+    bungalo: 0,
+    flat: 1000,
+    house: 5000,
+    palace: 10000
   };
 
   typeElement.addEventListener('input', onTypeElementInput);
