@@ -8,6 +8,30 @@ window.map = (function () {
   // переменная для активной метки, значение появляется при клике на метку
   var activeElement;
 
+  // обработчики закрытия карточки по клику на крестике и нажатия кнопки Escape
+  // перенесены наверх чтобы был доступ к ним из обоих функций в return
+  function onPopupClick() {
+    closeCard();
+  }
+
+  function onPopupEscape(evt) {
+    if (evt.key === 'Escape') {
+      closeCard();
+    }
+  }
+
+  function closeCard() {
+    document.removeEventListener('keydown', onPopupEscape);
+
+    // удаляет карточку
+    if (document.querySelector('.map__card')) {
+      document.querySelector('.map__card').remove();
+    }
+
+    // удаляем map__pin--active с метки
+    activeElement.classList.remove('map__pin--active');
+  }
+
   return {
 
     // Отрисовывает метки на карте
@@ -84,30 +108,6 @@ window.map = (function () {
         activeElement.classList.add('map__pin--active');
       }
 
-      // обработчики закрытия карточки по клику на крестике
-      // и нажатия кнопки Escape
-      function onPopupClick() {
-        closeCard();
-      }
-
-      function onPopupEscape(evt) {
-        if (evt.key === 'Escape') {
-          closeCard();
-        }
-      }
-
-      function closeCard() {
-        document.removeEventListener('keydown', onPopupEscape);
-
-        // удаляет карточку
-        if (document.querySelector('.map__card')) {
-          document.querySelector('.map__card').remove();
-        }
-
-        // удаляем map__pin--active с метки
-        activeElement.classList.remove('map__pin--active');
-      }
-
       // функция получает данные с сервера, выводит на основании данных метки на карту
       // вешает события на обычную метку
       function onLoad(response) {
@@ -157,6 +157,9 @@ window.map = (function () {
       if (document.querySelector('.map__card')) {
         document.querySelector('.map__card').remove();
       }
+
+      // удаляет событие, случай когда отправка формы происходит при открытой карточке
+      document.removeEventListener('keydown', onPopupEscape);
     },
 
   };

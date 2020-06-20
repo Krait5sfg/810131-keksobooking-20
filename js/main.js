@@ -20,9 +20,6 @@
   mapPinMainElement.addEventListener('mousedown', onMapPinMainElementClick);
   mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
 
-  // отправка данных формы на сервер
-  adFormElement.addEventListener('submit', onAdFormElementSumbit);
-
   // обработчики на элемент по клику мыши или по нажатию Enter
   function onMapPinMainElementEnter(evt) {
     if (evt.key === 'Enter') {
@@ -44,6 +41,42 @@
 
     mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementClick);
     mapPinMainElement.removeEventListener('keydown', onMapPinMainElementEnter);
+  }
+
+  // переключает страницу в неактивный режим
+  function switchToNoactiveModePage() {
+
+    // включение неактивного режима
+    isPageActiveFlag = false;
+    switchPageRegime(isPageActiveFlag);
+
+    // главная возвращается на стартовые позиции
+    mapPinMainElement.style.left = startLocationMapPinMainElement.x + 'px';
+    mapPinMainElement.style.top = startLocationMapPinMainElement.y + 'px';
+
+    // у главной метки удаляются события перемещения
+    mapPinMainElement.removeEventListener('mousedown', onMapPinMainMouseDown);
+
+    // гл.метка добавляются события нажатия на метку, которые переводят стр. в активный режим
+    mapPinMainElement.addEventListener('mousedown', onMapPinMainElementClick);
+    mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
+
+    // удаляются все неосновные метки с карты
+    window.map.removeElementsFromPage();
+
+    // делается reset формы
+    adFormElement.reset();
+
+    // устанавливаем стартовые значения полей, которые не затронул reset формы
+    window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
+    window.formPage.priceElement.placeholder = 1000;
+
+    // удаляются события с кнопки формы reset
+    window.formPage.adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
+    window.formPage.adFormResetElement.removeEventListener('keydown', onAdFormResetElementKeyDown);
+
+    // удаляются события с формы
+    adFormElement.removeEventListener('submit', onAdFormElementSumbit);
   }
 
   // переключает страницу в неактивное состояние и из неактивного в активное
@@ -71,6 +104,10 @@
       // вешаем disabled на все инпуты и select формы .map__filters
       window.util.setAttributeDisable(mapFiltersElement.querySelectorAll('input'));
       window.util.setAttributeDisable(mapFiltersElement.querySelectorAll('select'));
+
+      // вешаем disabled на кнопку отправки формы и кнопку reset формы
+      window.formPage.adFormSubmitElement.setAttribute('disabled', true);
+      window.formPage.adFormResetElement.setAttribute('disabled', true);
     } else if (isPageActive) {
 
       // true переводит в активное состояние:
@@ -85,6 +122,17 @@
       window.util.removeAttributeDisable(mapFiltersElement.querySelectorAll('input'));
       window.util.removeAttributeDisable(mapFiltersElement.querySelectorAll('select'));
 
+      // удаляем disabled c кнопки отправки формы и кнопки reset формы
+      window.formPage.adFormSubmitElement.removeAttribute('disabled');
+      window.formPage.adFormResetElement.removeAttribute('disabled');
+
+      // вешаем на кнопку reset событие сброса формы и страницы в неактивное исходное состояние
+      window.formPage.adFormResetElement.addEventListener('click', onAdFormResetElementClick);
+      window.formPage.adFormResetElement.addEventListener('keydown', onAdFormResetElementKeyDown);
+
+      // вешаем событие отправки данных формы на сервер
+      adFormElement.addEventListener('submit', onAdFormElementSumbit);
+
       // добавляет метки на карту
       window.map.pushElementsInPage();
 
@@ -93,7 +141,20 @@
     }
   }
 
-  // обработчик нажатия мыши на основную метку
+  // обработчики событий на кнопке reset формы
+  function onAdFormResetElementClick(evt) {
+    evt.preventDefault();
+    switchToNoactiveModePage();
+  }
+
+  function onAdFormResetElementKeyDown(evtKey) {
+    if (evtKey === 'Enter') {
+      evtKey.preventDefault();
+      switchToNoactiveModePage();
+    }
+  }
+
+  // обработчик перемещения по карте основной метки
   function onMapPinMainMouseDown(evtMouseDown) {
     evtMouseDown.preventDefault();
     // var mapPinMainElement = document.querySelector('.map__pin--main');
@@ -146,30 +207,7 @@
   // функция успешной отправки данных на сервер. переключает страницу в неактивный режим
   function onLoad() {
 
-    // включение неактивного режима
-    isPageActiveFlag = false;
-    switchPageRegime(isPageActiveFlag);
-
-    // главная возвращается на стартовые позиции
-    mapPinMainElement.style.left = startLocationMapPinMainElement.x + 'px';
-    mapPinMainElement.style.top = startLocationMapPinMainElement.y + 'px';
-
-    // у главной метки удаляются события перемещения
-    mapPinMainElement.removeEventListener('mousedown', onMapPinMainMouseDown);
-
-    // гл.метка добавляются события нажатия на метку, которые переводят стр. в активный режим
-    mapPinMainElement.addEventListener('mousedown', onMapPinMainElementClick);
-    mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
-
-    // удаляются все неосновные метки с карты
-    window.map.removeElementsFromPage();
-
-    // делается reset формы
-    adFormElement.reset();
-
-    // устанавливаем стартовые значения полей, которые не затронул reset формы
-    window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
-    window.formPage.priceElement.placeholder = 1000;
+    switchToNoactiveModePage();
 
     // сообщение об успешной отправке
     var successElement = document.querySelector('#success').content.cloneNode(true);

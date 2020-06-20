@@ -6,6 +6,8 @@ window.formPage = (function () {
   var HEIGHT_MARK = 82;
 
   var addressElement = document.querySelector('#address');
+  var adFormSubmitElement = document.querySelector('.ad-form__submit'); // кнопка ОПУБЛИКОВАТЬ
+  var adFormResetElement = document.querySelector('.ad-form__reset'); // кнопка ОЧИСТИТЬ
 
   // синхронизация Типа жилья с Ценой за ночь
   var typeElement = document.querySelector('#type'); // select тип жилья
@@ -74,6 +76,8 @@ window.formPage = (function () {
   return {
     addressElement: addressElement,
     priceElement: priceElement,
+    adFormSubmitElement: adFormSubmitElement,
+    adFormResetElement: adFormResetElement,
 
     // заполняет значение инпута address
     setAddressValue: function (isPageActive, mainPin, inputAddress) {
