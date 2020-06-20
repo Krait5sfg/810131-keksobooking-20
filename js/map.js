@@ -2,8 +2,6 @@
 // метки для карты
 window.map = (function () {
 
-  var mapElement = document.querySelector('.map');
-
   // переменная для меток на карте, заполнится после активации страницы
   var mapPinsElements = [];
 
@@ -27,11 +25,11 @@ window.map = (function () {
       window.backend.load(onLoad, onError);
 
       // обработчик при клике на метку или при нажатии Enter на метку
-      function onPinClick(evt) {
+      function onMapPinClick(evt) {
         openCard(evt);
       }
 
-      function onPinKeyDown(evt) {
+      function onMapPinKeyDown(evt) {
         if (evt.key === 'Enter') {
           evt.preventDefault();
           openCard(evt);
@@ -40,6 +38,7 @@ window.map = (function () {
 
       function openCard(evt) {
         var targetElement;
+
         // проверяет где произошло событие (img или button)
         if (evt.target.nodeName === 'BUTTON') {
 
@@ -67,10 +66,6 @@ window.map = (function () {
           if (objects[k].offer.title === alt) {
             var cardElement = window.card.getElementCard(objects[k]);
 
-            // реализация закрытия карточки
-            cardElement.querySelector('.popup__close').addEventListener('click', onPopupClick);
-            document.addEventListener('keydown', onPopupEscape);
-
             // если карточка уже открыта то при клике на другую метку текущая карточка закроется
             if (document.querySelector('.map__card')) {
               closeCard();
@@ -80,6 +75,10 @@ window.map = (function () {
             mapPins.insertAdjacentElement('afterend', cardElement);
           }
         }
+
+        // добавляем карточке события на закрытие
+        cardElement.querySelector('.popup__close').addEventListener('click', onPopupClick);
+        document.addEventListener('keydown', onPopupEscape);
 
         // добавляем текущему активному элементу map__pin--active
         activeElement.classList.add('map__pin--active');
@@ -98,59 +97,19 @@ window.map = (function () {
       }
 
       function closeCard() {
+        document.removeEventListener('keydown', onPopupEscape);
+
         // удаляет карточку
-        mapElement.removeChild(document.querySelector('.map__card'));
+        if (document.querySelector('.map__card')) {
+          document.querySelector('.map__card').remove();
+        }
 
         // удаляем map__pin--active с метки
         activeElement.classList.remove('map__pin--active');
       }
 
-      // обработчик нажатия мыши на основную метку
-      function onMapPinMainMouseDown(evtMouseDown) {
-        evtMouseDown.preventDefault();
-        var mapPinMainElement = document.querySelector('.map__pin--main');
-
-        // стартовые координаты
-        var startCoords = {
-          x: evtMouseDown.clientX,
-          y: evtMouseDown.clientY
-        };
-
-        mapPins.addEventListener('mousemove', onMapMouseMove);
-        mapPins.addEventListener('mouseup', onMapMouseUp);
-
-        function onMapMouseMove(evtMove) {
-          evtMove.preventDefault();
-
-          // смещение
-          var shift = {
-            x: startCoords.x - evtMove.clientX,
-            y: startCoords.y - evtMove.clientY
-          };
-
-          mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
-          mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
-
-          // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
-          // вычисления идут от левого верхнего угла метки
-          window.formPage.setAddressValue(true, mapPinMainElement, window.formPage.addressElement);
-
-          startCoords = {
-            x: evtMove.clientX,
-            y: evtMove.clientY
-          };
-        }
-
-        function onMapMouseUp(evtUp) {
-          evtUp.preventDefault();
-
-          mapPins.removeEventListener('mousemove', onMapMouseMove);
-          mapPins.removeEventListener('mouseup', onMapMouseUp);
-        }
-      }
-
       // функция получает данные с сервера, выводит на основании данных метки на карту
-      // вешает события на обычную метку и основную
+      // вешает события на обычную метку
       function onLoad(response) {
         var fragment = document.createDocumentFragment();
         for (var i = 0; i < response.length; i++) {
@@ -161,21 +120,15 @@ window.map = (function () {
         mapPins.appendChild(fragment);
 
         // реализация отображения карточки при клике на метку
-        // и перемещения основной метки
         mapPinsElements = document.querySelectorAll('.map__pin'); // массив с метками
 
         if (mapPinsElements) {
           for (var j = 0; j < mapPinsElements.length; j++) {
 
-            // если метка основная вешаем на нее обработчик перемещения
-            if (mapPinsElements[j].classList.contains('map__pin--main')) {
-              mapPinsElements[j].addEventListener('mousedown', onMapPinMainMouseDown);
-            } else {
-
-              // на все другие вешаем событие click которое сравнивает строку изображение аватара
-              // и изображение в массиве объектов
-              mapPinsElements[j].addEventListener('click', onPinClick);
-              mapPinsElements[j].addEventListener('keydown', onPinKeyDown);
+            // если метка не основная вешаем на нее click, которое сравнивает строку изображения аватара
+            if (!mapPinsElements[j].classList.contains('map__pin--main')) {
+              mapPinsElements[j].addEventListener('click', onMapPinClick);
+              mapPinsElements[j].addEventListener('keydown', onMapPinKeyDown);
             }
           }
         }
@@ -183,6 +136,26 @@ window.map = (function () {
 
       function onError(error) {
         throw new Error(error);
+      }
+    },
+
+    // функция используется при переводе стр в неактивный режим при успешной отправке формы
+    removeElementsFromPage: function () {
+
+      // удаляем метки
+      var mapPins = document.querySelector('.map__pins');
+      var mapPinsChildrens = mapPins.children;
+      var length = mapPinsChildrens.length;
+      var count = 0;
+      var startIndexForRemoving = 2;
+      while (count < length - startIndexForRemoving) {
+        mapPins.removeChild(mapPinsChildrens[startIndexForRemoving]);
+        count++;
+      }
+
+      // удаляем карточку если открыта
+      if (document.querySelector('.map__card')) {
+        document.querySelector('.map__card').remove();
       }
     },
 

@@ -73,6 +73,7 @@ window.formPage = (function () {
 
   return {
     addressElement: addressElement,
+    priceElement: priceElement,
 
     // заполняет значение инпута address
     setAddressValue: function (isPageActive, mainPin, inputAddress) {
