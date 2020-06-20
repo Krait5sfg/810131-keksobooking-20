@@ -1,6 +1,7 @@
 'use strict';
 // метки для карты
 window.map = (function () {
+  var mapPinMainElement = document.querySelector('.map__pin--main');
 
   // переменная для меток на карте, заполнится после активации страницы
   var mapPinsElements = [];
@@ -33,6 +34,7 @@ window.map = (function () {
   }
 
   return {
+    mapPinMainElement: mapPinMainElement,
 
     // Отрисовывает метки на карте
     pushElementsInPage: function () {
@@ -161,6 +163,49 @@ window.map = (function () {
       // удаляет событие, случай когда отправка формы происходит при открытой карточке
       document.removeEventListener('keydown', onPopupEscape);
     },
+
+    // обработчик перемещения по карте основной метки
+    onMapPinMainMouseDown: function (evtMouseDown) {
+      evtMouseDown.preventDefault();
+
+      // стартовые координаты
+      var startCoords = {
+        x: evtMouseDown.clientX,
+        y: evtMouseDown.clientY
+      };
+
+      document.querySelector('.map__pins').addEventListener('mousemove', onMapMouseMove);
+      document.querySelector('.map__pins').addEventListener('mouseup', onMapMouseUp);
+
+      function onMapMouseMove(evtMove) {
+        evtMove.preventDefault();
+
+        // смещение
+        var shift = {
+          x: startCoords.x - evtMove.clientX,
+          y: startCoords.y - evtMove.clientY
+        };
+
+        mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
+        mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
+
+        // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
+        // вычисления идут от левого верхнего угла метки
+        window.formPage.setAddressValue(true, mapPinMainElement, window.formPage.addressElement);
+
+        startCoords = {
+          x: evtMove.clientX,
+          y: evtMove.clientY
+        };
+      }
+
+      function onMapMouseUp(evtUp) {
+        evtUp.preventDefault();
+
+        document.querySelector('.map__pins').removeEventListener('mousemove', onMapMouseMove);
+        document.querySelector('.map__pins').removeEventListener('mouseup', onMapMouseUp);
+      }
+    }
 
   };
 

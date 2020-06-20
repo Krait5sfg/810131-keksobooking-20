@@ -2,7 +2,7 @@
 // модуль поведения страницы
 (function () {
 
-  var mapPinMainElement = document.querySelector('.map__pin--main');
+  var mapPinMainElement = window.map.mapPinMainElement;
   var adFormElement = document.querySelector('.ad-form');
 
   var startLocationMapPinMainElement = {
@@ -16,8 +16,8 @@
   window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
   switchPageRegime(isPageActiveFlag);
 
-  // переход в активное состояние страницы при нажатии на элементе
-  mapPinMainElement.addEventListener('mousedown', onMapPinMainElementClick);
+  // переход в активное состояние страницы при нажатии на гл.метке
+  mapPinMainElement.addEventListener('mousedown', onMapPinMainElementMouseDown);
   mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
 
   // обработчики на элемент по клику мыши или по нажатию Enter
@@ -27,7 +27,7 @@
     }
   }
 
-  function onMapPinMainElementClick(evtClick) {
+  function onMapPinMainElementMouseDown(evtClick) {
     if (evtClick.button === 0) {
       switchToActiveModePage();
     }
@@ -39,7 +39,7 @@
     switchPageRegime(isPageActiveFlag);
     window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
 
-    mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementClick);
+    mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementMouseDown);
     mapPinMainElement.removeEventListener('keydown', onMapPinMainElementEnter);
   }
 
@@ -55,10 +55,10 @@
     mapPinMainElement.style.top = startLocationMapPinMainElement.y + 'px';
 
     // у главной метки удаляются события перемещения
-    mapPinMainElement.removeEventListener('mousedown', onMapPinMainMouseDown);
+    mapPinMainElement.removeEventListener('mousedown', window.map.onMapPinMainMouseDown);
 
     // гл.метка добавляются события нажатия на метку, которые переводят стр. в активный режим
-    mapPinMainElement.addEventListener('mousedown', onMapPinMainElementClick);
+    mapPinMainElement.addEventListener('mousedown', onMapPinMainElementMouseDown);
     mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
 
     // удаляются все неосновные метки с карты
@@ -137,7 +137,7 @@
       window.map.pushElementsInPage();
 
       // на основную метку вешаем перемещение
-      mapPinMainElement.addEventListener('mousedown', onMapPinMainMouseDown);
+      mapPinMainElement.addEventListener('mousedown', window.map.onMapPinMainMouseDown);
     }
   }
 
@@ -151,50 +151,6 @@
     if (evtKey === 'Enter') {
       evtKey.preventDefault();
       switchToNoactiveModePage();
-    }
-  }
-
-  // обработчик перемещения по карте основной метки
-  function onMapPinMainMouseDown(evtMouseDown) {
-    evtMouseDown.preventDefault();
-    // var mapPinMainElement = document.querySelector('.map__pin--main');
-
-    // стартовые координаты
-    var startCoords = {
-      x: evtMouseDown.clientX,
-      y: evtMouseDown.clientY
-    };
-
-    document.querySelector('.map__pins').addEventListener('mousemove', onMapMouseMove);
-    document.querySelector('.map__pins').addEventListener('mouseup', onMapMouseUp);
-
-    function onMapMouseMove(evtMove) {
-      evtMove.preventDefault();
-
-      // смещение
-      var shift = {
-        x: startCoords.x - evtMove.clientX,
-        y: startCoords.y - evtMove.clientY
-      };
-
-      mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
-      mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
-
-      // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
-      // вычисления идут от левого верхнего угла метки
-      window.formPage.setAddressValue(true, mapPinMainElement, window.formPage.addressElement);
-
-      startCoords = {
-        x: evtMove.clientX,
-        y: evtMove.clientY
-      };
-    }
-
-    function onMapMouseUp(evtUp) {
-      evtUp.preventDefault();
-
-      document.querySelector('.map__pins').removeEventListener('mousemove', onMapMouseMove);
-      document.querySelector('.map__pins').removeEventListener('mouseup', onMapMouseUp);
     }
   }
 
