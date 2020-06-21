@@ -131,23 +131,14 @@ window.map = (function () {
         for (var i = 0; i < response.length; i++) {
           objects[i] = response[i];
           var newElement = window.pin.getElementPin(templatePin, objects[i]);
+          newElement.querySelector('.map__pin').addEventListener('click', onMapPinClick);
+          newElement.querySelector('.map__pin').addEventListener('keydown', onMapPinKeyDown);
           fragment.appendChild(newElement);
         }
         mapPins.appendChild(fragment);
 
-        // реализация отображения карточки при клике на метку
-        mapPinsElements = document.querySelectorAll('.map__pin'); // массив с метками
-
-        if (mapPinsElements) {
-          for (var j = 0; j < mapPinsElements.length; j++) {
-
-            // если метка не основная вешаем на нее click, которое сравнивает строку изображения аватара
-            if (!mapPinsElements[j].classList.contains('map__pin--main')) {
-              mapPinsElements[j].addEventListener('click', onMapPinClick);
-              mapPinsElements[j].addEventListener('keydown', onMapPinKeyDown);
-            }
-          }
-        }
+        // массив с метками, нужен для отображения отдельной карточки
+        mapPinsElements = document.querySelectorAll('.map__pin');
       }
 
       function onError(error) {
