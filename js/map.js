@@ -1,11 +1,40 @@
 'use strict';
 // метки для карты
 window.map = (function () {
+  var mapPinMainElement = document.querySelector('.map__pin--main');
 
-  var ELEMENT_COUNT = 8; // количество элементов которое надо сгенерировать на карте
-  var mapElement = document.querySelector('.map');
+  // переменная для меток на карте, заполнится после активации страницы
+  var mapPinsElements = [];
+
+  // переменная для активной метки, значение появляется при клике на метку
+  var activeElement;
+
+  // обработчики закрытия карточки по клику на крестике и нажатия кнопки Escape
+  // перенесены наверх чтобы был доступ к ним из обоих функций в return
+  function onPopupClick() {
+    closeCard();
+  }
+
+  function onPopupEscape(evt) {
+    if (evt.key === 'Escape') {
+      closeCard();
+    }
+  }
+
+  function closeCard() {
+    document.removeEventListener('keydown', onPopupEscape);
+
+    // удаляет карточку
+    if (document.querySelector('.map__card')) {
+      document.querySelector('.map__card').remove();
+    }
+
+    // удаляем map__pin--active с метки
+    activeElement.classList.remove('map__pin--active');
+  }
 
   return {
+    mapPinMainElement: mapPinMainElement,
 
     // Отрисовывает метки на карте
     pushElementsInPage: function () {
@@ -15,46 +44,18 @@ window.map = (function () {
       // место вставки элементов (меток на карте)
       var mapPins = document.querySelector('.map__pins');
 
-      // фрагмент
-      var fragment = document.createDocumentFragment();
+      // массив с объектами полученными с сервера
+      var objects = [];
 
-      // массив с моками
-      var randomsObjects = [];
-
-      for (var i = 0; i < ELEMENT_COUNT; i++) {
-        randomsObjects[i] = window.data.getRandomObject();
-        var newElement = window.pin.getElementPin(templatePin, randomsObjects[i]);
-        fragment.appendChild(newElement);
-      }
-
-      // вставляет на страницу метки для карты
-      mapPins.appendChild(fragment);
-
-      // реализация отображения карточки при клике на метку
-      // и перемещения основной метки
-      var mapPinsElements = document.querySelectorAll('.map__pin');
-      if (mapPinsElements) {
-        for (var j = 0; j < mapPinsElements.length; j++) {
-
-          // если метка основная вешаем на нее обработчик перемещения
-          if (mapPinsElements[j].classList.contains('map__pin--main')) {
-            mapPinsElements[j].addEventListener('mousedown', onMapPinMainMouseDown);
-          } else {
-
-            // на все другие вешаем событие click которое сравнивает строку изображение аватара
-            // и изображение в массиве объектов
-            mapPinsElements[j].addEventListener('click', onPinClick);
-            mapPinsElements[j].addEventListener('keydown', onPinKeyDown);
-          }
-        }
-      }
+      // получение данных с сервера, onLoad создает метки из этих данных
+      window.backend.load(onLoad, onError);
 
       // обработчик при клике на метку или при нажатии Enter на метку
-      function onPinClick(evt) {
+      function onMapPinClick(evt) {
         openCard(evt);
       }
 
-      function onPinKeyDown(evt) {
+      function onMapPinKeyDown(evt) {
         if (evt.key === 'Enter') {
           evt.preventDefault();
           openCard(evt);
@@ -63,23 +64,35 @@ window.map = (function () {
 
       function openCard(evt) {
         var targetElement;
+
         // проверяет где произошло событие (img или button)
         if (evt.target.nodeName === 'BUTTON') {
+
+          // если button - тогда это активный элемент, на него будем вешать класс map__pin--active
+          activeElement = evt.target;
+
+          // и находим дочерний img
           targetElement = evt.target.querySelector('img');
         } else {
+
+          // если img, тогда активный элемент его родитель
+          activeElement = evt.target.parentNode;
           targetElement = evt.target;
         }
-        var indexString = targetElement.src.indexOf('img');
-        var stringIndentifyPin = targetElement.src.slice(indexString);
-        for (var k = 0; k < randomsObjects.length; k++) {
-          if (randomsObjects[k].author.avatar === stringIndentifyPin) {
-            var cardElement = window.card.getElementCard(randomsObjects[k]);
 
-            // реализация закрытия карточки
-            cardElement.querySelector('.popup__close').addEventListener('click', onPopupClick);
-            document.addEventListener('keydown', onPopupEscape);
+        // находим какая метка какому соответствует объекту по alt метки
+        var alt = targetElement.alt;
+        var startIndexCount = 1;
+        for (var k = 0; k < objects.length; k++) {
 
-            // если карточка открыта - удаляем
+          // начиная с элемента с индексом 1 удаляем со всем меток массива mapPinsElements класс map__pin--active
+          mapPinsElements[startIndexCount].classList.remove('map__pin--active');
+          startIndexCount++;
+
+          if (objects[k].offer.title === alt) {
+            var cardElement = window.card.getElementCard(objects[k]);
+
+            // если карточка уже открыта то при клике на другую метку текущая карточка закроется
             if (document.querySelector('.map__card')) {
               closeCard();
             }
@@ -89,69 +102,110 @@ window.map = (function () {
           }
         }
 
+        // добавляем карточке события на закрытие
+        cardElement.querySelector('.popup__close').addEventListener('click', onPopupClick);
+        document.addEventListener('keydown', onPopupEscape);
+
+        // добавляем текущему активному элементу map__pin--active
+        activeElement.classList.add('map__pin--active');
       }
 
-      // обработчики закрытия карточки по клику на крестике
-      // и нажатия кнопки Escape
-      function onPopupClick() {
-        closeCard();
-      }
+      // функция получает данные с сервера, выводит на основании данных метки на карту
+      // вешает события на обычную метку
+      function onLoad(response) {
+        var fragment = document.createDocumentFragment();
+        for (var i = 0; i < response.length; i++) {
+          objects[i] = response[i];
+          var newElement = window.pin.getElementPin(templatePin, objects[i]);
+          fragment.appendChild(newElement);
+        }
+        mapPins.appendChild(fragment);
 
-      function onPopupEscape(evt) {
-        if (evt.key === 'Escape') {
-          closeCard();
+        // реализация отображения карточки при клике на метку
+        mapPinsElements = document.querySelectorAll('.map__pin'); // массив с метками
+
+        if (mapPinsElements) {
+          for (var j = 0; j < mapPinsElements.length; j++) {
+
+            // если метка не основная вешаем на нее click, которое сравнивает строку изображения аватара
+            if (!mapPinsElements[j].classList.contains('map__pin--main')) {
+              mapPinsElements[j].addEventListener('click', onMapPinClick);
+              mapPinsElements[j].addEventListener('keydown', onMapPinKeyDown);
+            }
+          }
         }
       }
 
-      function closeCard() {
-        // удаляет карточку
-        mapElement.removeChild(document.querySelector('.map__card'));
-      }
-
-      // обработчик нажатия мыши на основную метку
-      function onMapPinMainMouseDown(evtMouseDown) {
-        evtMouseDown.preventDefault();
-        var mapPinMainElement = document.querySelector('.map__pin--main');
-
-        // стартовые координаты
-        var startCoords = {
-          x: evtMouseDown.clientX,
-          y: evtMouseDown.clientY
-        };
-
-        mapPins.addEventListener('mousemove', onMapMouseMove);
-        mapPins.addEventListener('mouseup', onMapMouseUp);
-
-        function onMapMouseMove(evtMove) {
-          evtMove.preventDefault();
-
-          // смещение
-          var shift = {
-            x: startCoords.x - evtMove.clientX,
-            y: startCoords.y - evtMove.clientY
-          };
-
-          mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
-          mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
-
-          // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
-          // вычисления идут от левого верхнего угла метки
-          window.formPage.setAddressValue(true, mapPinMainElement, window.formPage.addressElement);
-
-          startCoords = {
-            x: evtMove.clientX,
-            y: evtMove.clientY
-          };
-        }
-
-        function onMapMouseUp(evtUp) {
-          evtUp.preventDefault();
-
-          mapPins.removeEventListener('mousemove', onMapMouseMove);
-          mapPins.removeEventListener('mouseup', onMapMouseUp);
-        }
+      function onError(error) {
+        throw new Error(error);
       }
     },
+
+    // функция используется при переводе стр в неактивный режим при успешной отправке формы
+    removeElementsFromPage: function () {
+
+      // удаляем метки
+      var mapPins = document.querySelector('.map__pins');
+      var mapPinsChildrens = mapPins.children;
+      var length = mapPinsChildrens.length;
+      var count = 0;
+      var startIndexForRemoving = 2;
+      while (count < length - startIndexForRemoving) {
+        mapPins.removeChild(mapPinsChildrens[startIndexForRemoving]);
+        count++;
+      }
+
+      // удаляем карточку если открыта
+      if (document.querySelector('.map__card')) {
+        document.querySelector('.map__card').remove();
+      }
+
+      // удаляет событие, случай когда отправка формы происходит при открытой карточке
+      document.removeEventListener('keydown', onPopupEscape);
+    },
+
+    // обработчик перемещения по карте основной метки
+    onMapPinMainMouseDown: function (evtMouseDown) {
+      evtMouseDown.preventDefault();
+
+      // стартовые координаты
+      var startCoords = {
+        x: evtMouseDown.clientX,
+        y: evtMouseDown.clientY
+      };
+
+      document.querySelector('.map__pins').addEventListener('mousemove', onMapMouseMove);
+      document.querySelector('.map__pins').addEventListener('mouseup', onMapMouseUp);
+
+      function onMapMouseMove(evtMove) {
+        evtMove.preventDefault();
+
+        // смещение
+        var shift = {
+          x: startCoords.x - evtMove.clientX,
+          y: startCoords.y - evtMove.clientY
+        };
+
+        mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
+        mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
+
+        // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
+        // вычисления идут от левого верхнего угла метки
+        window.formPage.setAddressValue(true, mapPinMainElement, window.formPage.addressElement);
+
+        startCoords = {
+          x: evtMove.clientX,
+          y: evtMove.clientY
+        };
+      }
+
+      function onMapMouseUp(evtUp) {
+        evtUp.preventDefault();
+
+        document.querySelector('.map__pins').removeEventListener('mousemove', onMapMouseMove);
+        document.querySelector('.map__pins').removeEventListener('mouseup', onMapMouseUp);
+      }
+    }
 
   };
 
