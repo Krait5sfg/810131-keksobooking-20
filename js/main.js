@@ -10,7 +10,7 @@
   // состояние страницы по-умолчанию:
   // - заполненый инпут address - неактивное состояние
   var isPageActiveFlag = false;
-  window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
+  window.formPage.setAddressValue(isPageActiveFlag);
   switchPageRegime(isPageActiveFlag);
 
   // переход в активное состояние страницы при нажатии на гл.метке
@@ -34,7 +34,7 @@
   function switchToActiveModePage() {
     isPageActiveFlag = true;
     switchPageRegime(isPageActiveFlag);
-    window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
+    window.formPage.setAddressValue(isPageActiveFlag);
 
     mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementMouseDown);
     mapPinMainElement.removeEventListener('keydown', onMapPinMainElementEnter);
@@ -61,7 +61,7 @@
     window.formPage.resetForm();
 
     // стартовое значение поля Адрес
-    window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
+    window.formPage.setAddressValue(isPageActiveFlag);
 
     // удаляются события с кнопки формы reset
     adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
