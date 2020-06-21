@@ -4,6 +4,10 @@ window.map = (function () {
 
   var mapPinMainElement = document.querySelector('.map__pin--main');
   var mapPinsElement = document.querySelector('.map__pins'); // блок с картой
+  var startLocationMapPinMainElement = {
+    x: mapPinMainElement.offsetLeft,
+    y: mapPinMainElement.offsetTop
+  };
 
   // ограничения для перемещения метки
   var boundMainPin = {
@@ -151,29 +155,6 @@ window.map = (function () {
       }
     },
 
-    // функция используется при переводе стр в неактивный режим при успешной отправке формы
-    removeElementsFromPage: function () {
-
-      // удаляем метки
-      var mapPins = document.querySelector('.map__pins');
-      var mapPinsChildrens = mapPins.children;
-      var length = mapPinsChildrens.length;
-      var count = 0;
-      var startIndexForRemoving = 2;
-      while (count < length - startIndexForRemoving) {
-        mapPins.removeChild(mapPinsChildrens[startIndexForRemoving]);
-        count++;
-      }
-
-      // удаляем карточку если открыта
-      if (document.querySelector('.map__card')) {
-        document.querySelector('.map__card').remove();
-      }
-
-      // удаляет событие, случай когда отправка формы происходит при открытой карточке
-      document.removeEventListener('keydown', onPopupEscape);
-    },
-
     // обработчик перемещения по карте основной метки
     onMapPinMainMouseDown: function (evtMouseDown) {
       evtMouseDown.preventDefault();
@@ -225,8 +206,34 @@ window.map = (function () {
         mapPinsElement.removeEventListener('mousemove', onMapMouseMove);
         mapPinsElement.removeEventListener('mouseup', onMapMouseUp);
       }
-    }
+    },
 
+    // ресет карты
+    resetMap: function () {
+
+      // главная возвращается на стартовые позиции
+      mapPinMainElement.style.left = startLocationMapPinMainElement.x + 'px';
+      mapPinMainElement.style.top = startLocationMapPinMainElement.y + 'px';
+
+      // удаляем метки
+      var mapPins = document.querySelector('.map__pins');
+      var mapPinsChildrens = mapPins.children;
+      var numberElements = mapPinsChildrens.length;
+      var count = 0;
+      var startIndexForRemoving = 2;
+      while (count < numberElements - startIndexForRemoving) {
+        mapPins.removeChild(mapPinsChildrens[startIndexForRemoving]);
+        count++;
+      }
+
+      // удаляем карточку если открыта
+      if (document.querySelector('.map__card')) {
+        document.querySelector('.map__card').remove();
+      }
+
+      // удаляет событие, случай когда отправка формы происходит при открытой карточке
+      document.removeEventListener('keydown', onPopupEscape);
+    },
   };
 
 })();

@@ -4,11 +4,8 @@
 
   var mapPinMainElement = window.map.mapPinMainElement;
   var adFormElement = window.formPage.adFormElement;
-
-  var startLocationMapPinMainElement = {
-    x: mapPinMainElement.offsetLeft,
-    y: mapPinMainElement.offsetTop
-  };
+  var adFormResetElement = window.formPage.adFormResetElement;
+  var adFormSubmitElement = window.formPage.adFormSubmitElement;
 
   // состояние страницы по-умолчанию:
   // - заполненый инпут address - неактивное состояние
@@ -50,10 +47,6 @@
     isPageActiveFlag = false;
     switchPageRegime(isPageActiveFlag);
 
-    // главная возвращается на стартовые позиции
-    mapPinMainElement.style.left = startLocationMapPinMainElement.x + 'px';
-    mapPinMainElement.style.top = startLocationMapPinMainElement.y + 'px';
-
     // у главной метки удаляются события перемещения
     mapPinMainElement.removeEventListener('mousedown', window.map.onMapPinMainMouseDown);
 
@@ -61,8 +54,8 @@
     mapPinMainElement.addEventListener('mousedown', onMapPinMainElementMouseDown);
     mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
 
-    // удаляются все неосновные метки с карты
-    window.map.removeElementsFromPage();
+    // ресет карты
+    window.map.resetMap();
 
     // делается reset формы
     window.formPage.resetForm();
@@ -71,8 +64,8 @@
     window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
 
     // удаляются события с кнопки формы reset
-    window.formPage.adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
-    window.formPage.adFormResetElement.removeEventListener('keydown', onAdFormResetElementKeyDown);
+    adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
+    adFormResetElement.removeEventListener('keydown', onAdFormResetElementKeyDown);
 
     // удаляются события с формы
     adFormElement.removeEventListener('submit', onAdFormElementSumbit);
@@ -122,12 +115,12 @@
       window.util.removeAttributeDisable(mapFiltersElement.querySelectorAll('select'));
 
       // удаляем disabled c кнопки отправки формы и кнопки reset формы
-      window.formPage.adFormSubmitElement.removeAttribute('disabled');
-      window.formPage.adFormResetElement.removeAttribute('disabled');
+      adFormSubmitElement.removeAttribute('disabled');
+      adFormResetElement.removeAttribute('disabled');
 
       // вешаем на кнопку reset событие сброса формы и страницы в неактивное исходное состояние
-      window.formPage.adFormResetElement.addEventListener('click', onAdFormResetElementClick);
-      window.formPage.adFormResetElement.addEventListener('keydown', onAdFormResetElementKeyDown);
+      adFormResetElement.addEventListener('click', onAdFormResetElementClick);
+      adFormResetElement.addEventListener('keydown', onAdFormResetElementKeyDown);
 
       // вешаем событие отправки данных формы на сервер
       adFormElement.addEventListener('submit', onAdFormElementSumbit);
