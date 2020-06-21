@@ -1,7 +1,17 @@
 'use strict';
 // метки для карты
 window.map = (function () {
+
   var mapPinMainElement = document.querySelector('.map__pin--main');
+  var mapPinsElement = document.querySelector('.map__pins'); // блок с картой
+
+  // ограничения для перемещения метки
+  var boundMainPin = {
+    upper: 48,
+    lower: 548,
+    left: -30,
+    right: 1165
+  };
 
   // переменная для меток на карте, заполнится после активации страницы
   var mapPinsElements = [];
@@ -174,8 +184,8 @@ window.map = (function () {
         y: evtMouseDown.clientY
       };
 
-      document.querySelector('.map__pins').addEventListener('mousemove', onMapMouseMove);
-      document.querySelector('.map__pins').addEventListener('mouseup', onMapMouseUp);
+      mapPinsElement.addEventListener('mousemove', onMapMouseMove);
+      mapPinsElement.addEventListener('mouseup', onMapMouseUp);
 
       function onMapMouseMove(evtMove) {
         evtMove.preventDefault();
@@ -186,8 +196,18 @@ window.map = (function () {
           y: startCoords.y - evtMove.clientY
         };
 
-        mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
-        mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
+        if ((mapPinMainElement.offsetTop - shift.y) <= boundMainPin.upper) {
+          mapPinMainElement.style.top = boundMainPin.upper + 'px';
+        } else if ((mapPinMainElement.offsetTop - shift.y) >= boundMainPin.lower) {
+          mapPinMainElement.style.top = boundMainPin.lower + 'px';
+        } else if ((mapPinMainElement.offsetLeft - shift.x) <= boundMainPin.left) {
+          mapPinMainElement.style.left = boundMainPin.left + 'px';
+        } else if ((mapPinMainElement.offsetLeft - shift.x) >= boundMainPin.right) {
+          mapPinMainElement.style.left = boundMainPin.right + 'px';
+        } else {
+          mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
+          mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
+        }
 
         // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
         // вычисления идут от левого верхнего угла метки
@@ -202,8 +222,8 @@ window.map = (function () {
       function onMapMouseUp(evtUp) {
         evtUp.preventDefault();
 
-        document.querySelector('.map__pins').removeEventListener('mousemove', onMapMouseMove);
-        document.querySelector('.map__pins').removeEventListener('mouseup', onMapMouseUp);
+        mapPinsElement.removeEventListener('mousemove', onMapMouseMove);
+        mapPinsElement.removeEventListener('mouseup', onMapMouseUp);
       }
     }
 
