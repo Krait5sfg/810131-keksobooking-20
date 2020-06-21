@@ -129,11 +129,16 @@ window.map = (function () {
       function onLoad(response) {
         var fragment = document.createDocumentFragment();
         for (var i = 0; i < response.length; i++) {
-          objects[i] = response[i];
-          var newElement = window.pin.getElementPin(templatePin, objects[i]);
-          newElement.querySelector('.map__pin').addEventListener('click', onMapPinClick);
-          newElement.querySelector('.map__pin').addEventListener('keydown', onMapPinKeyDown);
-          fragment.appendChild(newElement);
+          // проверка на поле offer в данных с сервера
+          if (response[i].offer) {
+            objects[i] = response[i];
+            var newElement = window.pin.getElementPin(templatePin, objects[i]);
+            newElement.querySelector('.map__pin').addEventListener('click', onMapPinClick);
+            newElement.querySelector('.map__pin').addEventListener('keydown', onMapPinKeyDown);
+            fragment.appendChild(newElement);
+          } else {
+            continue;
+          }
         }
         mapPins.appendChild(fragment);
 
