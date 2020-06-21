@@ -4,7 +4,7 @@ window.formPage = (function () {
 
   var WIDTH_MARK = 65;
   var HEIGHT_MARK = 82;
-
+  var adFormElement = document.querySelector('.ad-form'); // форма
   var addressElement = document.querySelector('#address');
   var adFormSubmitElement = document.querySelector('.ad-form__submit'); // кнопка ОПУБЛИКОВАТЬ
   var adFormResetElement = document.querySelector('.ad-form__reset'); // кнопка ОЧИСТИТЬ
@@ -74,8 +74,8 @@ window.formPage = (function () {
   }
 
   return {
+    adFormElement: adFormElement,
     addressElement: addressElement,
-    priceElement: priceElement,
     adFormSubmitElement: adFormSubmitElement,
     adFormResetElement: adFormResetElement,
 
@@ -92,6 +92,14 @@ window.formPage = (function () {
         // если страница в активном режиме то вычисляются координаты острого конца метки
         inputAddress.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
       }
+    },
+
+    // ресет формы
+    resetForm: function () {
+      adFormElement.reset();
+      countRoom = 1;
+      countGuest = 1;
+      priceElement.placeholder = 1000;
     },
   };
 

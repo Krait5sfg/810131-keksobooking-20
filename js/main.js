@@ -3,7 +3,7 @@
 (function () {
 
   var mapPinMainElement = window.map.mapPinMainElement;
-  var adFormElement = document.querySelector('.ad-form');
+  var adFormElement = window.formPage.adFormElement;
 
   var startLocationMapPinMainElement = {
     x: mapPinMainElement.offsetLeft,
@@ -65,11 +65,10 @@
     window.map.removeElementsFromPage();
 
     // делается reset формы
-    adFormElement.reset();
+    window.formPage.resetForm();
 
-    // устанавливаем стартовые значения полей, которые не затронул reset формы
+    // стартовое значение поля Адрес
     window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
-    window.formPage.priceElement.placeholder = 1000;
 
     // удаляются события с кнопки формы reset
     window.formPage.adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
