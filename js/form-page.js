@@ -4,10 +4,11 @@ window.formPage = (function () {
 
   var WIDTH_MARK = 65;
   var HEIGHT_MARK = 82;
-
+  var adFormElement = document.querySelector('.ad-form'); // форма
   var addressElement = document.querySelector('#address');
   var adFormSubmitElement = document.querySelector('.ad-form__submit'); // кнопка ОПУБЛИКОВАТЬ
   var adFormResetElement = document.querySelector('.ad-form__reset'); // кнопка ОЧИСТИТЬ
+  var mapPinMainElement = window.map.mapPinMainElement; // основная метка
 
   // синхронизация Типа жилья с Ценой за ночь
   var typeElement = document.querySelector('#type'); // select тип жилья
@@ -74,24 +75,31 @@ window.formPage = (function () {
   }
 
   return {
-    addressElement: addressElement,
-    priceElement: priceElement,
+    adFormElement: adFormElement,
     adFormSubmitElement: adFormSubmitElement,
     adFormResetElement: adFormResetElement,
 
     // заполняет значение инпута address
-    setAddressValue: function (isPageActive, mainPin, inputAddress) {
-      var leftValue = parseInt(mainPin.style.left, 10);
-      var topValue = parseInt(mainPin.style.top, 10);
+    setAddressValue: function (isPageActive) {
+      var leftValue = parseInt(mapPinMainElement.style.left, 10);
+      var topValue = parseInt(mapPinMainElement.style.top, 10);
       if (!isPageActive) {
         // если страница в неактивном режиме то вычисляются координаты серидины метки
         // в неактивном высота и ширина метки одинаковы
-        inputAddress.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (Math.round(topValue + (WIDTH_MARK / 2)));
+        addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (Math.round(topValue + (WIDTH_MARK / 2)));
       }
       if (isPageActive) {
         // если страница в активном режиме то вычисляются координаты острого конца метки
-        inputAddress.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
+        addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
       }
+    },
+
+    // ресет формы
+    resetForm: function () {
+      adFormElement.reset();
+      countRoom = 1;
+      countGuest = 1;
+      priceElement.placeholder = 1000;
     },
   };
 

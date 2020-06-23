@@ -3,17 +3,14 @@
 (function () {
 
   var mapPinMainElement = window.map.mapPinMainElement;
-  var adFormElement = document.querySelector('.ad-form');
-
-  var startLocationMapPinMainElement = {
-    x: mapPinMainElement.offsetLeft,
-    y: mapPinMainElement.offsetTop
-  };
+  var adFormElement = window.formPage.adFormElement;
+  var adFormResetElement = window.formPage.adFormResetElement;
+  var adFormSubmitElement = window.formPage.adFormSubmitElement;
 
   // состояние страницы по-умолчанию:
   // - заполненый инпут address - неактивное состояние
   var isPageActiveFlag = false;
-  window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
+  window.formPage.setAddressValue(isPageActiveFlag);
   switchPageRegime(isPageActiveFlag);
 
   // переход в активное состояние страницы при нажатии на гл.метке
@@ -37,7 +34,7 @@
   function switchToActiveModePage() {
     isPageActiveFlag = true;
     switchPageRegime(isPageActiveFlag);
-    window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
+    window.formPage.setAddressValue(isPageActiveFlag);
 
     mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementMouseDown);
     mapPinMainElement.removeEventListener('keydown', onMapPinMainElementEnter);
@@ -50,10 +47,6 @@
     isPageActiveFlag = false;
     switchPageRegime(isPageActiveFlag);
 
-    // главная возвращается на стартовые позиции
-    mapPinMainElement.style.left = startLocationMapPinMainElement.x + 'px';
-    mapPinMainElement.style.top = startLocationMapPinMainElement.y + 'px';
-
     // у главной метки удаляются события перемещения
     mapPinMainElement.removeEventListener('mousedown', window.map.onMapPinMainMouseDown);
 
@@ -61,19 +54,18 @@
     mapPinMainElement.addEventListener('mousedown', onMapPinMainElementMouseDown);
     mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
 
-    // удаляются все неосновные метки с карты
-    window.map.removeElementsFromPage();
+    // ресет карты
+    window.map.resetMap();
 
     // делается reset формы
-    adFormElement.reset();
+    window.formPage.resetForm();
 
-    // устанавливаем стартовые значения полей, которые не затронул reset формы
-    window.formPage.setAddressValue(isPageActiveFlag, mapPinMainElement, window.formPage.addressElement);
-    window.formPage.priceElement.placeholder = 1000;
+    // стартовое значение поля Адрес
+    window.formPage.setAddressValue(isPageActiveFlag);
 
     // удаляются события с кнопки формы reset
-    window.formPage.adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
-    window.formPage.adFormResetElement.removeEventListener('keydown', onAdFormResetElementKeyDown);
+    adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
+    adFormResetElement.removeEventListener('keydown', onAdFormResetElementKeyDown);
 
     // удаляются события с формы
     adFormElement.removeEventListener('submit', onAdFormElementSumbit);
@@ -123,12 +115,12 @@
       window.util.removeAttributeDisable(mapFiltersElement.querySelectorAll('select'));
 
       // удаляем disabled c кнопки отправки формы и кнопки reset формы
-      window.formPage.adFormSubmitElement.removeAttribute('disabled');
-      window.formPage.adFormResetElement.removeAttribute('disabled');
+      adFormSubmitElement.removeAttribute('disabled');
+      adFormResetElement.removeAttribute('disabled');
 
       // вешаем на кнопку reset событие сброса формы и страницы в неактивное исходное состояние
-      window.formPage.adFormResetElement.addEventListener('click', onAdFormResetElementClick);
-      window.formPage.adFormResetElement.addEventListener('keydown', onAdFormResetElementKeyDown);
+      adFormResetElement.addEventListener('click', onAdFormResetElementClick);
+      adFormResetElement.addEventListener('keydown', onAdFormResetElementKeyDown);
 
       // вешаем событие отправки данных формы на сервер
       adFormElement.addEventListener('submit', onAdFormElementSumbit);

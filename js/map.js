@@ -1,7 +1,21 @@
 'use strict';
 // метки для карты
 window.map = (function () {
+
   var mapPinMainElement = document.querySelector('.map__pin--main');
+  var mapPinsElement = document.querySelector('.map__pins'); // блок с картой
+  var startLocationMapPinMainElement = {
+    x: mapPinMainElement.offsetLeft,
+    y: mapPinMainElement.offsetTop
+  };
+
+  // ограничения для перемещения метки
+  var boundMainPin = {
+    upper: 48,
+    lower: 548,
+    left: -30,
+    right: 1165
+  };
 
   // переменная для меток на карте, заполнится после активации страницы
   var mapPinsElements = [];
@@ -115,53 +129,26 @@ window.map = (function () {
       function onLoad(response) {
         var fragment = document.createDocumentFragment();
         for (var i = 0; i < response.length; i++) {
-          objects[i] = response[i];
-          var newElement = window.pin.getElementPin(templatePin, objects[i]);
-          fragment.appendChild(newElement);
+          // проверка на поле offer в данных с сервера
+          if (response[i].offer) {
+            objects[i] = response[i];
+            var newElement = window.pin.getElementPin(templatePin, objects[i]);
+            newElement.querySelector('.map__pin').addEventListener('click', onMapPinClick);
+            newElement.querySelector('.map__pin').addEventListener('keydown', onMapPinKeyDown);
+            fragment.appendChild(newElement);
+          } else {
+            continue;
+          }
         }
         mapPins.appendChild(fragment);
 
-        // реализация отображения карточки при клике на метку
-        mapPinsElements = document.querySelectorAll('.map__pin'); // массив с метками
-
-        if (mapPinsElements) {
-          for (var j = 0; j < mapPinsElements.length; j++) {
-
-            // если метка не основная вешаем на нее click, которое сравнивает строку изображения аватара
-            if (!mapPinsElements[j].classList.contains('map__pin--main')) {
-              mapPinsElements[j].addEventListener('click', onMapPinClick);
-              mapPinsElements[j].addEventListener('keydown', onMapPinKeyDown);
-            }
-          }
-        }
+        // массив с метками, нужен для отображения отдельной карточки
+        mapPinsElements = document.querySelectorAll('.map__pin');
       }
 
       function onError(error) {
         throw new Error(error);
       }
-    },
-
-    // функция используется при переводе стр в неактивный режим при успешной отправке формы
-    removeElementsFromPage: function () {
-
-      // удаляем метки
-      var mapPins = document.querySelector('.map__pins');
-      var mapPinsChildrens = mapPins.children;
-      var length = mapPinsChildrens.length;
-      var count = 0;
-      var startIndexForRemoving = 2;
-      while (count < length - startIndexForRemoving) {
-        mapPins.removeChild(mapPinsChildrens[startIndexForRemoving]);
-        count++;
-      }
-
-      // удаляем карточку если открыта
-      if (document.querySelector('.map__card')) {
-        document.querySelector('.map__card').remove();
-      }
-
-      // удаляет событие, случай когда отправка формы происходит при открытой карточке
-      document.removeEventListener('keydown', onPopupEscape);
     },
 
     // обработчик перемещения по карте основной метки
@@ -174,8 +161,8 @@ window.map = (function () {
         y: evtMouseDown.clientY
       };
 
-      document.querySelector('.map__pins').addEventListener('mousemove', onMapMouseMove);
-      document.querySelector('.map__pins').addEventListener('mouseup', onMapMouseUp);
+      mapPinsElement.addEventListener('mousemove', onMapMouseMove);
+      mapPinsElement.addEventListener('mouseup', onMapMouseUp);
 
       function onMapMouseMove(evtMove) {
         evtMove.preventDefault();
@@ -186,8 +173,18 @@ window.map = (function () {
           y: startCoords.y - evtMove.clientY
         };
 
-        mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
-        mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
+        if ((mapPinMainElement.offsetTop - shift.y) <= boundMainPin.upper) {
+          mapPinMainElement.style.top = boundMainPin.upper + 'px';
+        } else if ((mapPinMainElement.offsetTop - shift.y) >= boundMainPin.lower) {
+          mapPinMainElement.style.top = boundMainPin.lower + 'px';
+        } else if ((mapPinMainElement.offsetLeft - shift.x) <= boundMainPin.left) {
+          mapPinMainElement.style.left = boundMainPin.left + 'px';
+        } else if ((mapPinMainElement.offsetLeft - shift.x) >= boundMainPin.right) {
+          mapPinMainElement.style.left = boundMainPin.right + 'px';
+        } else {
+          mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
+          mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
+        }
 
         // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
         // вычисления идут от левого верхнего угла метки
@@ -202,11 +199,37 @@ window.map = (function () {
       function onMapMouseUp(evtUp) {
         evtUp.preventDefault();
 
-        document.querySelector('.map__pins').removeEventListener('mousemove', onMapMouseMove);
-        document.querySelector('.map__pins').removeEventListener('mouseup', onMapMouseUp);
+        mapPinsElement.removeEventListener('mousemove', onMapMouseMove);
+        mapPinsElement.removeEventListener('mouseup', onMapMouseUp);
       }
-    }
+    },
 
+    // ресет карты
+    resetMap: function () {
+
+      // главная возвращается на стартовые позиции
+      mapPinMainElement.style.left = startLocationMapPinMainElement.x + 'px';
+      mapPinMainElement.style.top = startLocationMapPinMainElement.y + 'px';
+
+      // удаляем метки
+      var mapPins = document.querySelector('.map__pins');
+      var mapPinsChildrens = mapPins.children;
+      var numberElements = mapPinsChildrens.length;
+      var count = 0;
+      var startIndexForRemoving = 2;
+      while (count < numberElements - startIndexForRemoving) {
+        mapPins.removeChild(mapPinsChildrens[startIndexForRemoving]);
+        count++;
+      }
+
+      // удаляем карточку если открыта
+      if (document.querySelector('.map__card')) {
+        document.querySelector('.map__card').remove();
+      }
+
+      // удаляет событие, случай когда отправка формы происходит при открытой карточке
+      document.removeEventListener('keydown', onPopupEscape);
+    },
   };
 
 })();
