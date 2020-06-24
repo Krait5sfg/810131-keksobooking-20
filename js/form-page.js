@@ -77,9 +77,80 @@ window.formPage = (function () {
     select.value = evt.target.value;
   }
 
+  // отправка данных на сервер
   function onAdFormElementSumbit(evt) {
     evt.preventDefault();
-    window.backend.save(new FormData(adFormElement), window.main.onLoad, window.main.onError);
+    window.backend.save(new FormData(adFormElement), onLoad, onError);
+  }
+
+  // сообщение на страницу об успешной отправке и переключение режима страницы
+  function onLoad() {
+
+    window.main.switchToNoActiveModePage();
+
+    // сообщение об успешной отправке
+    var successElement = document.querySelector('#success').content.cloneNode(true);
+    var mainElement = document.querySelector('main');
+    mainElement.appendChild(successElement);
+
+    // события закрывающие сообщение об успешной отправке
+    document.addEventListener('keydown', onDocumentKeyDown);
+    document.addEventListener('click', onDocumentClick);
+
+    function closeSuccessMessage() {
+      document.querySelector('.success').remove();
+      document.removeEventListener('keydown', onDocumentKeyDown);
+      document.removeEventListener('click', onDocumentClick);
+    }
+
+    function onDocumentKeyDown(evt) {
+      if (evt.key === 'Escape') {
+        closeSuccessMessage();
+      }
+    }
+
+    function onDocumentClick(evt) {
+      if (evt.button === 0) {
+        closeSuccessMessage();
+      }
+    }
+  }
+
+  // выводит на страницу сообщение об ошибке
+  function onError() {
+    // сообщение об ошибке
+    var errorElement = document.querySelector('#error').content.cloneNode(true);
+    var mainElement = document.querySelector('main');
+    mainElement.appendChild(errorElement);
+
+    // события закрывающие сообщение об ошибке
+    document.querySelector('.error__button').addEventListener('click', onErrorButtonClick);
+    document.addEventListener('keydown', onDocumentKeyDown);
+    document.addEventListener('click', onDocumentClick);
+
+    function closeErrorMessage() {
+      document.querySelector('.error').remove();
+      document.removeEventListener('keydown', onDocumentKeyDown);
+      document.removeEventListener('click', onDocumentClick);
+    }
+
+    function onErrorButtonClick(evt) {
+      if (evt.button === 0) {
+        closeErrorMessage();
+      }
+    }
+
+    function onDocumentKeyDown(evt) {
+      if (evt.key === 'Escape') {
+        closeErrorMessage();
+      }
+    }
+
+    function onDocumentClick(evt) {
+      if (evt.button === 0) {
+        closeErrorMessage();
+      }
+    }
   }
 
   // заполняет значение инпута address
@@ -154,6 +225,7 @@ window.formPage = (function () {
 
     // переключает форму в активный режим
     switchFormToActive: function () {
+      adFormElement.classList.remove('ad-form--disabled');
 
       // удаляем disabled на все инпуты и select формы .ad-form
       window.util.removeAttributeDisable(adFormElement.querySelectorAll('input'));
