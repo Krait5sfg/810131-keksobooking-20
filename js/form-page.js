@@ -9,7 +9,10 @@ window.formPage = (function () {
   var adFormSubmitElement = document.querySelector('.ad-form__submit'); // кнопка ОПУБЛИКОВАТЬ
   var adFormResetElement = document.querySelector('.ad-form__reset'); // кнопка ОЧИСТИТЬ
   var mapPinMainElement = window.map.mapPinMainElement; // основная метка
-
+  var addressElementRegime = {
+    noActive: false,
+    active: true
+  };
   // синхронизация Типа жилья с Ценой за ночь
   var typeElement = document.querySelector('#type'); // select тип жилья
   var priceElement = document.querySelector('#price'); // инпут Цена за ночь
@@ -74,25 +77,43 @@ window.formPage = (function () {
     select.value = evt.target.value;
   }
 
+  function onAdFormElementSumbit(evt) {
+    evt.preventDefault();
+    window.backend.save(new FormData(adFormElement), window.main.onLoad, window.main.onError);
+  }
+
+  // заполняет значение инпута address
+  function setAddressValue(isPageActive) {
+    var leftValue = parseInt(mapPinMainElement.style.left, 10);
+    var topValue = parseInt(mapPinMainElement.style.top, 10);
+    if (!isPageActive) {
+      // если страница в неактивном режиме то вычисляются координаты серидины метки
+      // в неактивном высота и ширина метки одинаковы
+      addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (Math.round(topValue + (WIDTH_MARK / 2)));
+    }
+    if (isPageActive) {
+      // если страница в активном режиме то вычисляются координаты острого конца метки
+      addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
+    }
+  }
+
+  // обработчики событий на кнопке reset формы
+  function onAdFormResetElementClick(evt) {
+    evt.preventDefault();
+    window.main.switchToNoActiveModePage();
+  }
+
+  function onAdFormResetElementKeyDown(evtKey) {
+    if (evtKey === 'Enter') {
+      evtKey.preventDefault();
+      window.main.switchToNoActiveModePage();
+    }
+  }
+
   return {
     adFormElement: adFormElement,
     adFormSubmitElement: adFormSubmitElement,
     adFormResetElement: adFormResetElement,
-
-    // заполняет значение инпута address
-    setAddressValue: function (isPageActive) {
-      var leftValue = parseInt(mapPinMainElement.style.left, 10);
-      var topValue = parseInt(mapPinMainElement.style.top, 10);
-      if (!isPageActive) {
-        // если страница в неактивном режиме то вычисляются координаты серидины метки
-        // в неактивном высота и ширина метки одинаковы
-        addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (Math.round(topValue + (WIDTH_MARK / 2)));
-      }
-      if (isPageActive) {
-        // если страница в активном режиме то вычисляются координаты острого конца метки
-        addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
-      }
-    },
 
     // ресет формы
     resetForm: function () {
@@ -100,7 +121,59 @@ window.formPage = (function () {
       countRoom = 1;
       countGuest = 1;
       priceElement.placeholder = 1000;
+      setAddressValue(addressElementRegime.noActive);
     },
+
+    // переключает форму в неактивный режим
+    switchFormToNoActive: function () {
+
+      // проверяем если блок .ad-form содержит .ad-form-disabled, если нет - добавляем
+      if (!adFormElement.classList.contains('ad-form--disabled')) {
+        adFormElement.classList.add('ad-form--disabled');
+      }
+
+      // вешаем disabled на все инпуты и select формы .ad-form
+      window.util.setAttributeDisable(adFormElement.querySelectorAll('input'));
+      window.util.setAttributeDisable(adFormElement.querySelectorAll('select'));
+
+      // вешаем disabled на кнопку отправки формы и кнопку reset формы
+      adFormSubmitElement.setAttribute('disabled', true);
+      adFormResetElement.setAttribute('disabled', true);
+
+      // стартовое значение поля Адрес
+      setAddressValue(addressElementRegime.noActive);
+
+      // удаляются события с формы
+      adFormElement.removeEventListener('submit', onAdFormElementSumbit);
+
+      // удаляются события с кнопки формы reset
+      adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
+      adFormResetElement.removeEventListener('keydown', onAdFormResetElementKeyDown);
+
+    },
+
+    // переключает форму в активный режим
+    switchFormToActive: function () {
+
+      // удаляем disabled на все инпуты и select формы .ad-form
+      window.util.removeAttributeDisable(adFormElement.querySelectorAll('input'));
+      window.util.removeAttributeDisable(adFormElement.querySelectorAll('select'));
+
+      // удаляем disabled c кнопки отправки формы и кнопки reset формы
+      adFormSubmitElement.removeAttribute('disabled');
+      adFormResetElement.removeAttribute('disabled');
+
+      // вешаем на кнопку reset событие сброса формы и страницы в неактивное исходное состояние
+      adFormResetElement.addEventListener('click', onAdFormResetElementClick);
+      adFormResetElement.addEventListener('keydown', onAdFormResetElementKeyDown);
+
+      // вешаем событие отправки данных формы на сервер
+      adFormElement.addEventListener('submit', onAdFormElementSumbit);
+
+      setAddressValue(addressElementRegime.active);
+    },
+
+    setAddressValue: setAddressValue,
   };
 
 })();
