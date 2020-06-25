@@ -5,7 +5,6 @@ window.map = (function () {
   var mapPinMainElement = document.querySelector('.map__pin--main');
   var mapPinsElement = document.querySelector('.map__pins'); // блок на карте для меток
   var mapElement = document.querySelector('.map'); // карта
-  var mapFiltersElement = document.querySelector('.map__filters');
 
   var startLocationMapPinMainElement = {
     x: mapPinMainElement.offsetLeft,
@@ -97,16 +96,7 @@ window.map = (function () {
       mapPinMainElement.style.left = startLocationMapPinMainElement.x + 'px';
       mapPinMainElement.style.top = startLocationMapPinMainElement.y + 'px';
 
-      // удаляем метки
-      var mapPins = document.querySelector('.map__pins');
-      var mapPinsChildrens = mapPins.children;
-      var numberElements = mapPinsChildrens.length;
-      var count = 0;
-      var startIndexForRemoving = 2;
-      while (count < numberElements - startIndexForRemoving) {
-        mapPins.removeChild(mapPinsChildrens[startIndexForRemoving]);
-        count++;
-      }
+      window.renderPins.deletePins();
 
       // удаляем карточку если открыта
       if (document.querySelector('.map__card')) {
@@ -115,6 +105,8 @@ window.map = (function () {
 
       // удаляет событие, случай когда отправка формы происходит при открытой карточке
       document.removeEventListener('keydown', window.renderPins.onPopupEscape);
+
+      window.filterForm.resetFilterForm();
     },
 
     // карта в неактивный режим
@@ -126,8 +118,7 @@ window.map = (function () {
       }
 
       // вешаем disabled на все инпуты и select формы .map__filters
-      window.util.setAttributeDisable(mapFiltersElement.querySelectorAll('input'));
-      window.util.setAttributeDisable(mapFiltersElement.querySelectorAll('select'));
+      window.filterForm.setDisableOnFilterFormInputs();
 
       // переход в активное состояние страницы при нажатии на гл.метке
       mapPinMainElement.addEventListener('mousedown', onMapPinMainElementMouseDown);
@@ -150,12 +141,8 @@ window.map = (function () {
       // удаляет с главной метки событие переключения режима страницы
       mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementMouseDown);
       mapPinMainElement.removeEventListener('keydown', onMapPinMainElementEnter);
-    },
 
-    // удаляем disabled на все инпуты и select формы .map__filters
-    removeDisableFromFilterForm: function () {
-      window.util.removeAttributeDisable(mapFiltersElement.querySelectorAll('input'));
-      window.util.removeAttributeDisable(mapFiltersElement.querySelectorAll('select'));
+      window.filterForm.housingTypeElement.addEventListener('input', window.filterForm.onHousingTypeElementInput);
     },
   };
 
