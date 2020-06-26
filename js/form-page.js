@@ -157,15 +157,12 @@ window.formPage = (function () {
   function setAddressValue(isPageActive) {
     var leftValue = parseInt(mapPinMainElement.style.left, 10);
     var topValue = parseInt(mapPinMainElement.style.top, 10);
-    if (!isPageActive) {
-      // если страница в неактивном режиме то вычисляются координаты серидины метки
-      // в неактивном высота и ширина метки одинаковы
-      addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (Math.round(topValue + (WIDTH_MARK / 2)));
-    }
-    if (isPageActive) {
-      // если страница в активном режиме то вычисляются координаты острого конца метки
-      addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
-    }
+
+    // если страница в неактивном режиме то вычисляются координаты серидины метки
+    // если страница в активном режиме то вычисляются координаты острого конца метки
+    addressElement.value = !isPageActive ?
+      (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (Math.round(topValue + (WIDTH_MARK / 2))) :
+      (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
   }
 
   // обработчики событий на кнопке reset формы
