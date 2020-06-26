@@ -58,8 +58,7 @@ window.renderPins = (function () {
     for (var j = 0; j < objects.length; j++) {
       if (objects[j].offer.type === window.filterForm.filter.housingType) {
         filteredObjects.push(objects[j]);
-      }
-      if (filteredObjects === MAX_COUNT_PIN) {
+      } else if (filteredObjects.length === MAX_COUNT_PIN) {
         break;
       }
     }
@@ -202,7 +201,3 @@ window.renderPins = (function () {
     renderPins: renderPins
   };
 })();
-var test = [10, -1, 2, 30, 5, -2, 0, 70, 8, 9, -5, 'yura', 'yura', 'yura', 'yura'];
-
-
-
