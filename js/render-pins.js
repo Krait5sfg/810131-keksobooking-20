@@ -51,13 +51,27 @@ window.renderPins = (function () {
   function renderPins() {
 
     // фильтрация
-    if (window.filterForm.filter.housingType !== 'any') {
-      filteredObjects = objects.filter(function (it) {
-        return it.offer.type === window.filterForm.filter.housingType;
-      });
-    } else {
-      filteredObjects = objects;
+    filteredObjects = [];
+    if (window.filterForm.filter.housingType === 'any') {
+      filteredObjects = objects.slice(0, MAX_COUNT_PIN);
     }
+    for (var j = 0; j < objects.length; j++) {
+      if (objects[j].offer.type === window.filterForm.filter.housingType) {
+        filteredObjects.push(objects[j]);
+      }
+      if (filteredObjects === MAX_COUNT_PIN) {
+        break;
+      }
+    }
+
+
+    // if (window.filterForm.filter.housingType !== 'any') {
+    //   filteredObjects = objects.filter(function (it) {
+    //     return it.offer.type === window.filterForm.filter.housingType;
+    //   });
+    // } else {
+    //   filteredObjects = objects;
+    // }
 
     // удаляем метки перед новой отрисовкой если есть
     if (mapPinsElements.length) {
@@ -66,8 +80,8 @@ window.renderPins = (function () {
 
     var templatePin = document.querySelector('#pin').content;// шаблон метки на карте
     var fragment = document.createDocumentFragment();
-    takeNumber = filteredObjects.length > MAX_COUNT_PIN ? MAX_COUNT_PIN : filteredObjects.length;
-    for (var i = 0; i < takeNumber; i++) {
+    // takeNumber = filteredObjects.length > MAX_COUNT_PIN ? MAX_COUNT_PIN : filteredObjects.length;
+    for (var i = 0; i < filteredObjects.length; i++) {
       var newElement = window.pin.getElementPin(templatePin, filteredObjects[i]);
       newElement.querySelector('.map__pin').addEventListener('click', onMapPinClick);
       newElement.querySelector('.map__pin').addEventListener('keydown', onMapPinKeyDown);
@@ -112,7 +126,7 @@ window.renderPins = (function () {
     // находим какая метка какому соответствует объекту по alt метки
     var alt = targetElement.alt;
     var startIndexCount = 1;
-    for (var k = 0; k < takeNumber; k++) {
+    for (var k = 0; k < filteredObjects.length; k++) {
 
       // начиная с элемента с индексом 1 удаляем со всем меток массива mapPinsElements класс map__pin--active
       mapPinsElements[startIndexCount].classList.remove('map__pin--active');
@@ -188,3 +202,7 @@ window.renderPins = (function () {
     renderPins: renderPins
   };
 })();
+var test = [10, -1, 2, 30, 5, -2, 0, 70, 8, 9, -5, 'yura', 'yura', 'yura', 'yura'];
+
+
+

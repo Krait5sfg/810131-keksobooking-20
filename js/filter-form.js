@@ -10,6 +10,7 @@ window.filterForm = (function () {
 
 
   function onHousingTypeElementInput(evt) {
+    console.log(evt.target.value)
     filter.housingType = evt.target.value;
     window.renderPins.renderPins();
 
