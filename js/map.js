@@ -142,7 +142,7 @@ window.map = (function () {
       mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementMouseDown);
       mapPinMainElement.removeEventListener('keydown', onMapPinMainElementEnter);
 
-      window.filterForm.housingTypeElement.addEventListener('input', window.filterForm.onHousingTypeElementInput);
+      window.filterForm.setEventListenerOnElementsFilterForm();
     },
   };
 
