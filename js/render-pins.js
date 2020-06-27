@@ -49,7 +49,7 @@ window.renderPins = (function () {
 
   // функция отрисовки меток
   function renderPins() {
-
+    window.filterForm.testFilter();
     // фильтрация
     filteredObjects = [];
     if (window.filterForm.filter.housingType === 'any') {

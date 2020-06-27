@@ -90,8 +90,18 @@ window.filterForm = (function () {
     filter: filter,
 
     resetFilterForm: function () {
+
       mapFiltersElement.reset();
       filter.housingType = 'any';
+      filter.housingPrice = 'any';
+      filter.housingRooms = 'any';
+      filter.housingGuests = 'any';
+      filter.wifi = 'any';
+      filter.dishwasher = 'any';
+      filter.washer = 'any';
+      filter.parking = 'any';
+      filter.elevator = 'any';
+      filter.conditioner = 'any';
       housingTypeElement.removeEventListener('input', onHousingTypeElementInput);
       housingPriceElement.removeEventListener('input', onHousingPriceElementInput);
       housingRoomsElement.removeEventListener('input', onHousingRoomsElementInput);
@@ -127,6 +137,10 @@ window.filterForm = (function () {
       filterParkingElement.addEventListener('input', onFilterParkingElementInput);
       filterElevatorElement.addEventListener('input', onFilterElevatorElementInput);
       filterConditionerElement.addEventListener('input', onFilterConditionerElement);
+    },
+
+    testFilter: function () {
+      console.log(filter);
     }
   };
 })();
