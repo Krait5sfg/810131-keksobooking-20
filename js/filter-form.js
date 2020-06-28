@@ -2,23 +2,24 @@
 
 // модуль формы-фильтра на карте
 window.filterForm = (function () {
+  var TIMEOUT = 500;
   var mapFiltersElement = document.querySelector('.map__filters');
   var housingTypeElement = document.querySelector('#housing-type');
   var housingPriceElement = document.querySelector('#housing-price');
   var housingRoomsElement = document.querySelector('#housing-rooms');
   var housingGuestsElement = document.querySelector('#housing-guests');
+  var lastTimeout;
 
   function filterSelect(select, objectValue) {
-    if (select.value === 'middle') {
-      return objectValue >= 10000 && objectValue <= 50000;
-    } else if (select.value === 'low') {
-      return objectValue < 10000;
-    } else if (select.value === 'high') {
-      return objectValue >= 50000;
-    }
-
-    if (select.value !== 'any') {
-      return select.value === objectValue.toString();
+    switch (true) {
+      case select.value === 'middle':
+        return objectValue >= 10000 && objectValue <= 50000;
+      case select.value === 'low':
+        return objectValue < 10000;
+      case select.value === 'high':
+        return objectValue >= 50000;
+      case select.value !== 'any':
+        return select.value === objectValue.toString();
     }
     return true;
   }
@@ -60,8 +61,13 @@ window.filterForm = (function () {
   }
 
   function onMapFiltersElementChange() {
-    var filteredObjects = getFilteredObjects();
-    window.renderPins.renderPins(filteredObjects);
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(function () {
+      var filteredObjects = getFilteredObjects();
+      window.renderPins.renderPins(filteredObjects);
+    }, TIMEOUT);
   }
 
   return {
