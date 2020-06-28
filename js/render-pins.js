@@ -75,7 +75,7 @@ window.renderPins = (function () {
     mapPinsElement.appendChild(fragment);
 
     // массив с метками, нужен для отображения отдельной карточки
-    mapPinsElements = document.querySelectorAll('.map__pin');
+    mapPinsElements = document.querySelectorAll('.map__pin:not(.map__pin--main)');
   }
 
   // обработчик при клике на метку или при нажатии Enter на метку
@@ -110,12 +110,10 @@ window.renderPins = (function () {
 
     // находим какая метка какому соответствует объекту по alt метки
     var alt = targetElement.alt;
-    var startIndexCount = 1;
     for (var k = 0; k < filteredObjects.length; k++) {
 
-      // начиная с элемента с индексом 1 удаляем со всем меток массива mapPinsElements класс map__pin--active
-      mapPinsElements[startIndexCount].classList.remove('map__pin--active');
-      startIndexCount++;
+      // удаляем со всем меток массива mapPinsElements класс map__pin--active
+      mapPinsElements[k].classList.remove('map__pin--active');
 
       if (filteredObjects[k].offer.title === alt) {
         var cardElement = window.card.getElementCard(filteredObjects[k]);

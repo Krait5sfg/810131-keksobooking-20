@@ -91,6 +91,8 @@ window.filterForm = (function () {
       window.util.setAttributeDisable(mapFiltersElement.querySelectorAll('select'));
     },
 
-    onMapFiltersElementChange: onMapFiltersElementChange
+    setFilterToActive: function () {
+      mapFiltersElement.addEventListener('change', onMapFiltersElementChange);
+    }
   };
 })();

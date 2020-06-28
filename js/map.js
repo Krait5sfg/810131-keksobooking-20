@@ -41,17 +41,22 @@ window.map = (function () {
         y: startCoords.y - evtMove.clientY
       };
 
-      if ((mapPinMainElement.offsetTop - shift.y) <= boundMainPin.upper) {
-        mapPinMainElement.style.top = boundMainPin.upper + 'px';
-      } else if ((mapPinMainElement.offsetTop - shift.y) >= boundMainPin.lower) {
-        mapPinMainElement.style.top = boundMainPin.lower + 'px';
-      } else if ((mapPinMainElement.offsetLeft - shift.x) <= boundMainPin.left) {
-        mapPinMainElement.style.left = boundMainPin.left + 'px';
-      } else if ((mapPinMainElement.offsetLeft - shift.x) >= boundMainPin.right) {
-        mapPinMainElement.style.left = boundMainPin.right + 'px';
-      } else {
-        mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
-        mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
+      switch (true) {
+        case (mapPinMainElement.offsetTop - shift.y) <= boundMainPin.upper:
+          mapPinMainElement.style.top = boundMainPin.upper + 'px';
+          break;
+        case (mapPinMainElement.offsetTop - shift.y) >= boundMainPin.lower:
+          mapPinMainElement.style.top = boundMainPin.lower + 'px';
+          break;
+        case (mapPinMainElement.offsetLeft - shift.x) <= boundMainPin.left:
+          mapPinMainElement.style.left = boundMainPin.left + 'px';
+          break;
+        case (mapPinMainElement.offsetLeft - shift.x) >= boundMainPin.right:
+          mapPinMainElement.style.left = boundMainPin.right + 'px';
+          break;
+        default:
+          mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
+          mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
       }
 
       // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
@@ -142,7 +147,7 @@ window.map = (function () {
       mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementMouseDown);
       mapPinMainElement.removeEventListener('keydown', onMapPinMainElementEnter);
 
-      window.filterForm.mapFiltersElement.addEventListener('change', window.filterForm.onMapFiltersElementChange);
+      window.filterForm.setFilterToActive();
     },
   };
 
