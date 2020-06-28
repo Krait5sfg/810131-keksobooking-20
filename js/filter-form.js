@@ -47,28 +47,34 @@ window.filterForm = (function () {
     renderPinsAndRemoveCard();
   }
 
-  function onFilterWiFiElementInput(evtCheckox) {
-    getCheckboxValue(evtCheckox);
+  function onFilterWiFiElementInput(evtCheckbox) {
+    getCheckboxValue(evtCheckbox);
+    renderPinsAndRemoveCard();
   }
 
-  function onFilterDishwasherElementInput(evtCheckox) {
-    getCheckboxValue(evtCheckox);
+  function onFilterDishwasherElementInput(evtCheckbox) {
+    getCheckboxValue(evtCheckbox);
+    renderPinsAndRemoveCard();
   }
 
-  function onFilterWasherElementInput(evtCheckox) {
-    getCheckboxValue(evtCheckox);
+  function onFilterWasherElementInput(evtCheckbox) {
+    getCheckboxValue(evtCheckbox);
+    renderPinsAndRemoveCard();
   }
 
-  function onFilterParkingElementInput(evtCheckox) {
-    getCheckboxValue(evtCheckox);
+  function onFilterParkingElementInput(evtCheckbox) {
+    getCheckboxValue(evtCheckbox);
+    renderPinsAndRemoveCard();
   }
 
-  function onFilterElevatorElementInput(evtCheckox) {
-    getCheckboxValue(evtCheckox);
+  function onFilterElevatorElementInput(evtCheckbox) {
+    getCheckboxValue(evtCheckbox);
+    renderPinsAndRemoveCard();
   }
 
-  function onFilterConditionerElement(evtCheckox) {
-    getCheckboxValue(evtCheckox);
+  function onFilterConditionerElement(evtCheckbox) {
+    getCheckboxValue(evtCheckbox);
+    renderPinsAndRemoveCard();
   }
 
   function renderPinsAndRemoveCard() {
@@ -78,11 +84,11 @@ window.filterForm = (function () {
     }
   }
 
-  function getCheckboxValue(evtCheckox) {
-    if (evtCheckox.target.checked) {
-      filter[evtCheckox.target.value] = evtCheckox.target.value;
+  function getCheckboxValue(evtCheckbox) {
+    if (evtCheckbox.target.checked) {
+      filter[evtCheckbox.target.value] = evtCheckbox.target.value;
     } else {
-      filter[evtCheckox.target.value] = 'any';
+      filter[evtCheckbox.target.value] = 'any';
     }
   }
 
@@ -140,7 +146,13 @@ window.filterForm = (function () {
     },
 
     testFilter: function () {
-      console.log(filter);
+      var object = {};
+      for (var key in filter) {
+        if (filter.hasOwnProperty(key) && filter[key] !== 'any') {
+          object[key] = filter[key];
+        }
+      }
+      return object;
     }
   };
 })();

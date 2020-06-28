@@ -49,20 +49,23 @@ window.renderPins = (function () {
 
   // функция отрисовки меток
   function renderPins() {
-    window.filterForm.testFilter();
+    var condition = window.filterForm.testFilter();
+    console.log('filter', window.filterForm.filter);
+    console.log('condition', condition);
+
     // фильтрация
     filteredObjects = [];
     if (window.filterForm.filter.housingType === 'any') {
       filteredObjects = objects.slice(0, MAX_COUNT_PIN);
     }
     for (var j = 0; j < objects.length; j++) {
+
       if (objects[j].offer.type === window.filterForm.filter.housingType) {
         filteredObjects.push(objects[j]);
       } else if (filteredObjects.length === MAX_COUNT_PIN) {
         break;
       }
     }
-
 
     // if (window.filterForm.filter.housingType !== 'any') {
     //   filteredObjects = objects.filter(function (it) {
