@@ -15,6 +15,14 @@ window.filterForm = (function () {
   var filterConditionerElement = document.querySelector('#filter-conditioner');
 
   function filterSelect(select, item) {
+    if (select.value === 'middle') {
+      return item >= 10000 && item <= 50000;
+    } else if (select.value === 'low') {
+      return item < 10000;
+    } else if (select.value === 'high') {
+      return item >= 50000;
+    }
+
     if (select.value !== 'any') {
       return select.value === item.toString();
     }
