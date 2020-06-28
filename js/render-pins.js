@@ -18,9 +18,6 @@ window.renderPins = (function () {
 
   var mapPinsElement = window.map.mapPinsElement;
 
-  // переменная счетчик для цикла выводящего метки на карту
-  var takeNumber;
-
   // функция получает данные с сервера, выводит на основании данных метки на карту
   // вешает события на обычную метку
   function onLoad(response) {
@@ -48,41 +45,27 @@ window.renderPins = (function () {
   }
 
   // функция отрисовки меток
-  function renderPins() {
-    var condition = window.filterForm.testFilter();
-    console.log('filter', window.filterForm.filter);
-    console.log('condition', condition);
+  function renderPins(filteredObjectsFromFilterForm) {
 
     // фильтрация
-    filteredObjects = [];
-    if (window.filterForm.filter.housingType === 'any') {
+    if (!filteredObjectsFromFilterForm) {
       filteredObjects = objects.slice(0, MAX_COUNT_PIN);
+    } else {
+      filteredObjects = filteredObjectsFromFilterForm;
     }
-    for (var j = 0; j < objects.length; j++) {
-
-      if (objects[j].offer.type === window.filterForm.filter.housingType) {
-        filteredObjects.push(objects[j]);
-      } else if (filteredObjects.length === MAX_COUNT_PIN) {
-        break;
-      }
-    }
-
-    // if (window.filterForm.filter.housingType !== 'any') {
-    //   filteredObjects = objects.filter(function (it) {
-    //     return it.offer.type === window.filterForm.filter.housingType;
-    //   });
-    // } else {
-    //   filteredObjects = objects;
-    // }
 
     // удаляем метки перед новой отрисовкой если есть
     if (mapPinsElements.length) {
       deletePins();
     }
 
+    // если карточка уже открыта - то при новой отрисовке меток закроется
+    if (document.querySelector('.map__card')) {
+      closeCard();
+    }
+
     var templatePin = document.querySelector('#pin').content;// шаблон метки на карте
     var fragment = document.createDocumentFragment();
-    // takeNumber = filteredObjects.length > MAX_COUNT_PIN ? MAX_COUNT_PIN : filteredObjects.length;
     for (var i = 0; i < filteredObjects.length; i++) {
       var newElement = window.pin.getElementPin(templatePin, filteredObjects[i]);
       newElement.querySelector('.map__pin').addEventListener('click', onMapPinClick);
@@ -170,9 +153,7 @@ window.renderPins = (function () {
     document.removeEventListener('keydown', onPopupEscape);
 
     // удаляет карточку
-    if (document.querySelector('.map__card')) {
-      document.querySelector('.map__card').remove();
-    }
+    document.querySelector('.map__card').remove();
 
     // удаляем map__pin--active с метки
     activeElement.classList.remove('map__pin--active');
@@ -192,7 +173,7 @@ window.renderPins = (function () {
   }
 
   return {
-
+    objects: objects,
     // Отрисовывает метки на карте
     pushElementsInPage: function () {
       // получение данных с сервера, onLoad создает метки из этих данных
