@@ -7,26 +7,37 @@ window.filterForm = (function () {
   var housingPriceElement = document.querySelector('#housing-price');
   var housingRoomsElement = document.querySelector('#housing-rooms');
   var housingGuestsElement = document.querySelector('#housing-guests');
-  var filterWiFiElement = document.querySelector('#filter-wifi');
-  var filterDishwasherElement = document.querySelector('#filter-dishwasher');
-  var filterWasherElement = document.querySelector('#filter-washer');
-  var filterParkingElement = document.querySelector('#filter-parking');
-  var filterElevatorElement = document.querySelector('#filter-elevator');
-  var filterConditionerElement = document.querySelector('#filter-conditioner');
 
-  function filterSelect(select, item) {
+  function filterSelect(select, objectValue) {
     if (select.value === 'middle') {
-      return item >= 10000 && item <= 50000;
+      return objectValue >= 10000 && objectValue <= 50000;
     } else if (select.value === 'low') {
-      return item < 10000;
+      return objectValue < 10000;
     } else if (select.value === 'high') {
-      return item >= 50000;
+      return objectValue >= 50000;
     }
 
     if (select.value !== 'any') {
-      return select.value === item.toString();
+      return select.value === objectValue.toString();
     }
     return true;
+  }
+
+  function filterCheckbox(objectFeatures) {
+    var checkedCheckboxes = mapFiltersElement.querySelectorAll('.map__checkbox:checked');
+    var fitResults = [];
+    for (var j = 0; j < checkedCheckboxes.length; j++) {
+      if (objectFeatures.includes(checkedCheckboxes[j].value)) {
+        fitResults.push(checkedCheckboxes[j].value);
+      } else {
+        break;
+      }
+    }
+    if (fitResults.length === checkedCheckboxes.length) {
+      return objectFeatures;
+    } else {
+      return false;
+    }
   }
 
   function getFilteredObjects() {
@@ -40,7 +51,8 @@ window.filterForm = (function () {
       if (filterSelect(housingTypeElement, object.offer.type) &&
         filterSelect(housingPriceElement, object.offer.price) &&
         filterSelect(housingRoomsElement, object.offer.rooms) &&
-        filterSelect(housingGuestsElement, object.offer.guests)) {
+        filterSelect(housingGuestsElement, object.offer.guests) &&
+        filterCheckbox(object.offer.features)) {
         filteredObjects.push(object);
       }
     }
