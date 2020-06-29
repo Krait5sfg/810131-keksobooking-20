@@ -28,7 +28,12 @@ window.card = (function () {
       newElement.querySelector('.popup__description').textContent = object.offer.description;
       pushImagesInPopupPhotos(newElement);
       newElement.querySelector('.popup__avatar').setAttribute('src', object.author.avatar);
-
+      var elementFields = Array.from(newElement.firstElementChild.children);
+      elementFields.forEach(function (element) {
+        if (!element.innerHTML) {
+          element.style.display = 'none';
+        }
+      });
       return newElement.firstElementChild;
 
       // функция создает список .popup__features на основе доступных удобств
