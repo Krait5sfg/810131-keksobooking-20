@@ -9,6 +9,7 @@ window.formPage = (function () {
   var adFormSubmitElement = document.querySelector('.ad-form__submit'); // кнопка ОПУБЛИКОВАТЬ
   var adFormResetElement = document.querySelector('.ad-form__reset'); // кнопка ОЧИСТИТЬ
   var mapPinMainElement = window.map.mapPinMainElement; // основная метка
+  var mainFormCheckboxes = adFormElement.querySelectorAll('input[type=checkbox]');
   var addressElementRegime = {
     noActive: false,
     active: true
@@ -178,6 +179,13 @@ window.formPage = (function () {
     }
   }
 
+  function onCheckboxElementKeyDown(evt) {
+    if (evt.key === 'Enter') {
+      evt.preventDefault();
+      window.util.toggleCheckedAttribute(evt.target);
+    }
+  }
+
   return {
     adFormElement: adFormElement,
     adFormSubmitElement: adFormSubmitElement,
@@ -218,6 +226,10 @@ window.formPage = (function () {
       adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
       adFormResetElement.removeEventListener('keydown', onAdFormResetElementKeyDown);
 
+      mainFormCheckboxes.forEach(function (checkboxElement) {
+        checkboxElement.removeEventListener('keydown', onCheckboxElementKeyDown);
+        checkboxElement.removeAttribute('checked');
+      });
     },
 
     // переключает форму в активный режим
@@ -235,6 +247,10 @@ window.formPage = (function () {
       // вешаем на кнопку reset событие сброса формы и страницы в неактивное исходное состояние
       adFormResetElement.addEventListener('click', onAdFormResetElementClick);
       adFormResetElement.addEventListener('keydown', onAdFormResetElementKeyDown);
+
+      mainFormCheckboxes.forEach(function (checkboxElement) {
+        checkboxElement.addEventListener('keydown', onCheckboxElementKeyDown);
+      });
 
       // вешаем событие отправки данных формы на сервер
       adFormElement.addEventListener('submit', onAdFormElementSumbit);
