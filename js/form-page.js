@@ -93,6 +93,7 @@ window.formPage = (function () {
     var successElement = document.querySelector('#success').content.cloneNode(true);
     var mainElement = document.querySelector('main');
     mainElement.appendChild(successElement);
+    adFormSubmitElement.blur();// для FireFox
 
     // события закрывающие сообщение об успешной отправке
     document.addEventListener('keydown', onDocumentKeyDown);
@@ -125,9 +126,11 @@ window.formPage = (function () {
     mainElement.appendChild(errorElement);
 
     // события закрывающие сообщение об ошибке
-    document.querySelector('.error__button').addEventListener('click', onErrorButtonClick);
+    var errorButtonElement = document.querySelector('.error__button');
+    errorButtonElement.addEventListener('click', onErrorButtonClick);
     document.addEventListener('keydown', onDocumentKeyDown);
     document.addEventListener('click', onDocumentClick);
+    errorButtonElement.focus();
 
     function closeErrorMessage() {
       document.querySelector('.error').remove();
