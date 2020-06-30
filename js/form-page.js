@@ -211,13 +211,8 @@ window.formPage = (function () {
         adFormElement.classList.add('ad-form--disabled');
       }
 
-      // вешаем disabled на все инпуты и select формы .ad-form
-      window.util.setAttributeDisable(adFormElement.querySelectorAll('input'));
-      window.util.setAttributeDisable(adFormElement.querySelectorAll('select'));
-
-      // вешаем disabled на кнопку отправки формы и кнопку reset формы
-      adFormSubmitElement.setAttribute('disabled', true);
-      adFormResetElement.setAttribute('disabled', true);
+      // вешаем disabled на все инпуты, select, textarea
+      window.util.setAttributeDisable(adFormElement.querySelectorAll('fieldset'));
 
       // стартовое значение поля Адрес
       setAddressValue(addressElementRegime.noActive);
@@ -239,13 +234,8 @@ window.formPage = (function () {
     switchFormToActive: function () {
       adFormElement.classList.remove('ad-form--disabled');
 
-      // удаляем disabled на все инпуты и select формы .ad-form
-      window.util.removeAttributeDisable(adFormElement.querySelectorAll('input'));
-      window.util.removeAttributeDisable(adFormElement.querySelectorAll('select'));
-
-      // удаляем disabled c кнопки отправки формы и кнопки reset формы
-      adFormSubmitElement.removeAttribute('disabled');
-      adFormResetElement.removeAttribute('disabled');
+      // удаляем disabled c инпутов, селектов, текстареа
+      window.util.removeAttributeDisable(adFormElement.querySelectorAll('fieldset'));
 
       // вешаем на кнопку reset событие сброса формы и страницы в неактивное исходное состояние
       adFormResetElement.addEventListener('click', onAdFormResetElementClick);
