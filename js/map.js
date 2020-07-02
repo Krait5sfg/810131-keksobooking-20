@@ -130,8 +130,6 @@ window.map = (function () {
       // переход в активное состояние страницы при нажатии на гл.метке
       mapPinMainElement.addEventListener('mousedown', onMapPinMainElementMouseDown);
       mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
-
-      // у главной метки удаляются события перемещения
       mapPinMainElement.addEventListener('mousedown', onMapPinMainMouseDown);
     },
 

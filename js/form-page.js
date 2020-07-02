@@ -30,14 +30,9 @@ window.formPage = (function () {
     100: '100 комнат — не для гостей'
   };
 
-  typeElement.addEventListener('input', onTypeElementInput);
-
   // синхронизация Время заезда и Время выезда
   var timeInElement = document.querySelector('#timein');
   var timeOutElement = document.querySelector('#timeout');
-
-  timeInElement.addEventListener('input', onTimeElementInput);
-  timeOutElement.addEventListener('input', onTimeElementInput);
 
   // синхронизация инпута Количество комнат и инпута Количество мест
   var roomNumberElement = document.querySelector('#room_number');
@@ -45,10 +40,15 @@ window.formPage = (function () {
   var countRoom = 1;
   var countGuest = 1;
 
-  roomNumberElement.addEventListener('input', onRoomNumberElementAndCapacityElementInput);
-  capacityElement.addEventListener('input', onRoomNumberElementAndCapacityElementInput);
+  function onRoomNumberElementInput(evt) {
+    checkRoomsToGuests(evt);
+  }
 
-  function onRoomNumberElementAndCapacityElementInput(evt) {
+  function onCapacityElementInput(evt) {
+    checkRoomsToGuests(evt);
+  }
+
+  function checkRoomsToGuests(evt) {
     if (evt.target.id === 'room_number') {
       countRoom = parseInt(evt.target.value, 10);
     } else {
@@ -66,7 +66,15 @@ window.formPage = (function () {
     priceElement.setAttribute('placeholder', minPriceForHouse[evt.target.value]);
   }
 
-  function onTimeElementInput(evt) {
+  function onTimeInElementInput(evt) {
+    selectById(evt);
+  }
+
+  function onTimeOutElementInput(evt) {
+    selectById(evt);
+  }
+
+  function selectById(evt) {
     var id = evt.target.id;
     var select;
     if (id === 'timein') {
@@ -215,6 +223,12 @@ window.formPage = (function () {
       // удаляются события с кнопки формы reset
       adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
       adFormResetElement.removeEventListener('keydown', onAdFormResetElementKeyDown);
+
+      timeInElement.removeEventListener('input', onTimeInElementInput);
+      timeOutElement.removeEventListener('input', onTimeOutElementInput);
+      typeElement.removeEventListener('input', onTypeElementInput);
+      roomNumberElement.removeEventListener('input', onRoomNumberElementInput);
+      capacityElement.removeEventListener('input', onCapacityElementInput);
     },
 
     // переключает форму в активный режим
@@ -230,6 +244,12 @@ window.formPage = (function () {
 
       // вешаем событие отправки данных формы на сервер
       adFormElement.addEventListener('submit', onAdFormElementSumbit);
+
+      timeInElement.addEventListener('input', onTimeInElementInput);
+      timeOutElement.addEventListener('input', onTimeOutElementInput);
+      typeElement.addEventListener('input', onTypeElementInput);
+      roomNumberElement.addEventListener('input', onRoomNumberElementInput);
+      capacityElement.addEventListener('input', onCapacityElementInput);
 
       setAddressValue(addressElementRegime.active);
     },
