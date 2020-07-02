@@ -10,13 +10,13 @@ window.card = (function () {
   };
 
   // шаблон карточки
-  var templateCard = document.querySelector('#card').content;
+  var templateCardElement = document.querySelector('#card').content;
 
   return {
 
     // возвращает один элемент (карточку) на основе переданного шаблона и объекта с данными
     getElementCard: function (object) {
-      var newElement = templateCard.cloneNode(true);
+      var newElement = templateCardElement.cloneNode(true);
 
       newElement.querySelector('.popup__title').textContent = object.offer.title;
       newElement.querySelector('.popup__text--address').textContent = object.offer.address;

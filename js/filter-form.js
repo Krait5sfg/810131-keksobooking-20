@@ -1,5 +1,4 @@
 'use strict';
-
 // модуль формы-фильтра на карте
 window.filterForm = (function () {
   var TIMEOUT = 500;
@@ -88,7 +87,6 @@ window.filterForm = (function () {
     mapFiltersElement: mapFiltersElement,
 
     resetFilterForm: function () {
-
       mapFiltersElement.reset();
       mapFiltersElement.removeEventListener('change', onMapFiltersElementChange);
       checkboxes.forEach(function (checkboxElement) {

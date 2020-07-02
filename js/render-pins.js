@@ -64,10 +64,10 @@ window.renderPins = (function () {
       closeCard();
     }
 
-    var templatePin = document.querySelector('#pin').content;// шаблон метки на карте
+    var templatePinElement = document.querySelector('#pin').content;// шаблон метки на карте
     var fragment = document.createDocumentFragment();
     for (var i = 0; i < filteredObjects.length; i++) {
-      var newElement = window.pin.getElementPin(templatePin, filteredObjects[i]);
+      var newElement = window.pin.getElementPin(templatePinElement, filteredObjects[i]);
       newElement.querySelector('.map__pin').addEventListener('click', onMapPinClick);
       newElement.querySelector('.map__pin').addEventListener('keydown', onMapPinKeyDown);
       fragment.appendChild(newElement);
@@ -109,13 +109,13 @@ window.renderPins = (function () {
     }
 
     // находим какая метка какому соответствует объекту по alt метки
-    var alt = targetElement.alt;
+    var altAttribute = targetElement.alt;
     for (var k = 0; k < filteredObjects.length; k++) {
 
       // удаляем со всем меток массива mapPinsElements класс map__pin--active
       mapPinsElements[k].classList.remove('map__pin--active');
 
-      if (filteredObjects[k].offer.title === alt) {
+      if (filteredObjects[k].offer.title === altAttribute) {
         var cardElement = window.card.getElementCard(filteredObjects[k]);
 
         // если карточка уже открыта то при клике на другую метку текущая карточка закроется
@@ -159,13 +159,12 @@ window.renderPins = (function () {
 
   // удаляет метки
   function deletePins() {
-    var mapPins = document.querySelector('.map__pins');
-    var mapPinsChildrens = mapPins.children;
-    var numberElements = mapPinsChildrens.length;
+    var mapPinsElementChildrens = mapPinsElement.children;
+    var countElement = mapPinsElementChildrens.length;
     var count = 0;
     var startIndexForRemoving = 2;
-    while (count < numberElements - startIndexForRemoving) {
-      mapPins.removeChild(mapPinsChildrens[startIndexForRemoving]);
+    while (count < countElement - startIndexForRemoving) {
+      mapPinsElement.removeChild(mapPinsElementChildrens[startIndexForRemoving]);
       count++;
     }
   }
