@@ -7,7 +7,6 @@ window.filterForm = (function () {
   var housingPriceElement = document.querySelector('#housing-price');
   var housingRoomsElement = document.querySelector('#housing-rooms');
   var housingGuestsElement = document.querySelector('#housing-guests');
-  var checkboxes = mapFiltersElement.querySelectorAll('input[type=checkbox]');
   var lastTimeout;
 
   function filterSelect(select, objectValue) {
@@ -89,10 +88,6 @@ window.filterForm = (function () {
     resetFilterForm: function () {
       mapFiltersElement.reset();
       mapFiltersElement.removeEventListener('change', onMapFiltersElementChange);
-      checkboxes.forEach(function (checkboxElement) {
-        checkboxElement.removeEventListener('keydown', onCheckboxElementKeyDown);
-        checkboxElement.removeAttribute('checked');
-      });
     },
 
     // удаляем disabled на все инпуты и select формы .map__filters
@@ -109,9 +104,6 @@ window.filterForm = (function () {
 
     setFilterToActive: function () {
       mapFiltersElement.addEventListener('change', onMapFiltersElementChange);
-      checkboxes.forEach(function (checkboxElement) {
-        checkboxElement.addEventListener('keydown', onCheckboxElementKeyDown);
-      });
     }
   };
 })();
