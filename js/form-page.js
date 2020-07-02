@@ -182,13 +182,6 @@ window.formPage = (function () {
     }
   }
 
-  function onCheckboxElementKeyDown(evt) {
-    if (evt.key === 'Enter') {
-      evt.preventDefault();
-      window.util.toggleCheckedAttribute(evt.target);
-    }
-  }
-
   return {
     adFormElement: adFormElement,
     adFormSubmitElement: adFormSubmitElement,

@@ -69,19 +69,6 @@ window.filterForm = (function () {
     }, TIMEOUT);
   }
 
-  function onCheckboxElementKeyDown(evt) {
-    if (evt.key === 'Enter') {
-      window.util.toggleCheckedAttribute(evt.target);
-      if (lastTimeout) {
-        window.clearTimeout(lastTimeout);
-      }
-      lastTimeout = window.setTimeout(function () {
-        var filteredObjects = getFilteredObjects();
-        window.renderPins.renderPins(filteredObjects);
-      }, TIMEOUT);
-    }
-  }
-
   return {
     mapFiltersElement: mapFiltersElement,
 
