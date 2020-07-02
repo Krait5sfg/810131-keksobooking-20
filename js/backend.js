@@ -31,6 +31,7 @@ window.backend = (function () {
         onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
       });
     },
+
     save: function (data, onLoad, onError) {
       var xhr = new XMLHttpRequest();
       xhr.responseType = 'json';

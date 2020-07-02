@@ -9,11 +9,11 @@ window.formPage = (function () {
   var adFormSubmitElement = document.querySelector('.ad-form__submit'); // кнопка ОПУБЛИКОВАТЬ
   var adFormResetElement = document.querySelector('.ad-form__reset'); // кнопка ОЧИСТИТЬ
   var mapPinMainElement = window.map.mapPinMainElement; // основная метка
-  // var mainFormCheckboxes = adFormElement.querySelectorAll('input[type=checkbox]');
   var addressElementRegime = {
     noActive: false,
     active: true
   };
+
   // синхронизация Типа жилья с Ценой за ночь
   var typeElement = document.querySelector('#type'); // select тип жилья
   var priceElement = document.querySelector('#price'); // инпут Цена за ночь
@@ -23,7 +23,6 @@ window.formPage = (function () {
     house: 5000,
     palace: 10000
   };
-
   var wrongMessage = {
     1: '1 комната — для 1 гостя',
     2: '2 комнаты — для 2 гостей или для 1 гостя',

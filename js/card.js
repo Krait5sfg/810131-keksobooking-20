@@ -13,7 +13,6 @@ window.card = (function () {
   var templateCardElement = document.querySelector('#card').content;
 
   return {
-
     // возвращает один элемент (карточку) на основе переданного шаблона и объекта с данными
     getElementCard: function (object) {
       var newElement = templateCardElement.cloneNode(true);

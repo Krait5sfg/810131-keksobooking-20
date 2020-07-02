@@ -1,5 +1,4 @@
 'use strict';
-
 // отрисовка меток на карте
 window.renderPins = (function () {
   var MAX_COUNT_PIN = 5; // ограничение меток на карте
