@@ -21,16 +21,18 @@ window.map = (function () {
 
   // обработчик перемещения по карте основной метки
   function onMapPinMainMouseDown(evtMouseDown) {
-    evtMouseDown.preventDefault();
+    if (evtMouseDown.button === 0) {
+      evtMouseDown.preventDefault();
 
-    // стартовые координаты
-    var startCoords = {
-      x: evtMouseDown.clientX,
-      y: evtMouseDown.clientY
-    };
+      // стартовые координаты
+      var startCoords = {
+        x: evtMouseDown.clientX,
+        y: evtMouseDown.clientY
+      };
 
-    mapPinsElement.addEventListener('mousemove', onMapMouseMove);
-    mapPinsElement.addEventListener('mouseup', onMapMouseUp);
+      mapPinsElement.addEventListener('mousemove', onMapMouseMove);
+      mapPinsElement.addEventListener('mouseup', onMapMouseUp);
+    }
 
     function onMapMouseMove(evtMove) {
       evtMove.preventDefault();
@@ -41,17 +43,22 @@ window.map = (function () {
         y: startCoords.y - evtMove.clientY
       };
 
-      if ((mapPinMainElement.offsetTop - shift.y) <= boundMainPin.upper) {
-        mapPinMainElement.style.top = boundMainPin.upper + 'px';
-      } else if ((mapPinMainElement.offsetTop - shift.y) >= boundMainPin.lower) {
-        mapPinMainElement.style.top = boundMainPin.lower + 'px';
-      } else if ((mapPinMainElement.offsetLeft - shift.x) <= boundMainPin.left) {
-        mapPinMainElement.style.left = boundMainPin.left + 'px';
-      } else if ((mapPinMainElement.offsetLeft - shift.x) >= boundMainPin.right) {
-        mapPinMainElement.style.left = boundMainPin.right + 'px';
-      } else {
-        mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
-        mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
+      switch (true) {
+        case (mapPinMainElement.offsetTop - shift.y) <= boundMainPin.upper:
+          mapPinMainElement.style.top = boundMainPin.upper + 'px';
+          break;
+        case (mapPinMainElement.offsetTop - shift.y) >= boundMainPin.lower:
+          mapPinMainElement.style.top = boundMainPin.lower + 'px';
+          break;
+        case (mapPinMainElement.offsetLeft - shift.x) <= boundMainPin.left:
+          mapPinMainElement.style.left = boundMainPin.left + 'px';
+          break;
+        case (mapPinMainElement.offsetLeft - shift.x) >= boundMainPin.right:
+          mapPinMainElement.style.left = boundMainPin.right + 'px';
+          break;
+        default:
+          mapPinMainElement.style.top = (mapPinMainElement.offsetTop - shift.y) + 'px';
+          mapPinMainElement.style.left = (mapPinMainElement.offsetLeft - shift.x) + 'px';
       }
 
       // вставляем данные метки в инпут c учетом смещения (т.е. считаем острый конец)
@@ -123,9 +130,7 @@ window.map = (function () {
       // переход в активное состояние страницы при нажатии на гл.метке
       mapPinMainElement.addEventListener('mousedown', onMapPinMainElementMouseDown);
       mapPinMainElement.addEventListener('keydown', onMapPinMainElementEnter);
-
-      // у главной метки удаляются события перемещения
-      mapPinMainElement.removeEventListener('mousedown', window.map.onMapPinMainMouseDown);
+      mapPinMainElement.addEventListener('mousedown', onMapPinMainMouseDown);
     },
 
     // карта в активный режим
@@ -135,14 +140,11 @@ window.map = (function () {
       // добавляет метки на карту
       window.renderPins.pushElementsInPage();
 
-      // на основную метку вешаем перемещение
-      mapPinMainElement.addEventListener('mousedown', onMapPinMainMouseDown);
-
       // удаляет с главной метки событие переключения режима страницы
       mapPinMainElement.removeEventListener('mousedown', onMapPinMainElementMouseDown);
       mapPinMainElement.removeEventListener('keydown', onMapPinMainElementEnter);
 
-      window.filterForm.housingTypeElement.addEventListener('input', window.filterForm.onHousingTypeElementInput);
+      window.filterForm.setFilterToActive();
     },
   };
 

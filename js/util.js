@@ -42,6 +42,14 @@ window.util = (function () {
         nodes[i].removeAttribute('disabled');
       }
     },
+
+    toggleCheckedAttribute: function (element) {
+      if (element.getAttribute('checked') === null) {
+        element.setAttribute('checked', true);
+      } else {
+        element.removeAttribute('checked');
+      }
+    },
   };
 
 })();

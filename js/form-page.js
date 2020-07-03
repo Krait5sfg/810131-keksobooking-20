@@ -13,6 +13,7 @@ window.formPage = (function () {
     noActive: false,
     active: true
   };
+
   // синхронизация Типа жилья с Ценой за ночь
   var typeElement = document.querySelector('#type'); // select тип жилья
   var priceElement = document.querySelector('#price'); // инпут Цена за ночь
@@ -22,7 +23,6 @@ window.formPage = (function () {
     house: 5000,
     palace: 10000
   };
-
   var wrongMessage = {
     1: '1 комната — для 1 гостя',
     2: '2 комнаты — для 2 гостей или для 1 гостя',
@@ -30,14 +30,9 @@ window.formPage = (function () {
     100: '100 комнат — не для гостей'
   };
 
-  typeElement.addEventListener('input', onTypeElementInput);
-
   // синхронизация Время заезда и Время выезда
   var timeInElement = document.querySelector('#timein');
   var timeOutElement = document.querySelector('#timeout');
-
-  timeInElement.addEventListener('input', onTimeElementInput);
-  timeOutElement.addEventListener('input', onTimeElementInput);
 
   // синхронизация инпута Количество комнат и инпута Количество мест
   var roomNumberElement = document.querySelector('#room_number');
@@ -45,10 +40,15 @@ window.formPage = (function () {
   var countRoom = 1;
   var countGuest = 1;
 
-  roomNumberElement.addEventListener('input', onRoomNumberElementAndCapacityElementInput);
-  capacityElement.addEventListener('input', onRoomNumberElementAndCapacityElementInput);
+  function onRoomNumberElementInput(evt) {
+    checkRoomsToGuests(evt);
+  }
 
-  function onRoomNumberElementAndCapacityElementInput(evt) {
+  function onCapacityElementInput(evt) {
+    checkRoomsToGuests(evt);
+  }
+
+  function checkRoomsToGuests(evt) {
     if (evt.target.id === 'room_number') {
       countRoom = parseInt(evt.target.value, 10);
     } else {
@@ -66,7 +66,15 @@ window.formPage = (function () {
     priceElement.setAttribute('placeholder', minPriceForHouse[evt.target.value]);
   }
 
-  function onTimeElementInput(evt) {
+  function onTimeInElementInput(evt) {
+    selectById(evt);
+  }
+
+  function onTimeOutElementInput(evt) {
+    selectById(evt);
+  }
+
+  function selectById(evt) {
     var id = evt.target.id;
     var select;
     if (id === 'timein') {
@@ -92,6 +100,7 @@ window.formPage = (function () {
     var successElement = document.querySelector('#success').content.cloneNode(true);
     var mainElement = document.querySelector('main');
     mainElement.appendChild(successElement);
+    adFormSubmitElement.blur();// для FireFox
 
     // события закрывающие сообщение об успешной отправке
     document.addEventListener('keydown', onDocumentKeyDown);
@@ -124,9 +133,11 @@ window.formPage = (function () {
     mainElement.appendChild(errorElement);
 
     // события закрывающие сообщение об ошибке
-    document.querySelector('.error__button').addEventListener('click', onErrorButtonClick);
+    var errorButtonElement = document.querySelector('.error__button');
+    errorButtonElement.addEventListener('click', onErrorButtonClick);
     document.addEventListener('keydown', onDocumentKeyDown);
     document.addEventListener('click', onDocumentClick);
+    errorButtonElement.focus();
 
     function closeErrorMessage() {
       document.querySelector('.error').remove();
@@ -157,15 +168,12 @@ window.formPage = (function () {
   function setAddressValue(isPageActive) {
     var leftValue = parseInt(mapPinMainElement.style.left, 10);
     var topValue = parseInt(mapPinMainElement.style.top, 10);
-    if (!isPageActive) {
-      // если страница в неактивном режиме то вычисляются координаты серидины метки
-      // в неактивном высота и ширина метки одинаковы
-      addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (Math.round(topValue + (WIDTH_MARK / 2)));
-    }
-    if (isPageActive) {
-      // если страница в активном режиме то вычисляются координаты острого конца метки
-      addressElement.value = (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
-    }
+
+    // если страница в неактивном режиме то вычисляются координаты серидины метки
+    // если страница в активном режиме то вычисляются координаты острого конца метки
+    addressElement.value = !isPageActive ?
+      (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (Math.round(topValue + (WIDTH_MARK / 2))) :
+      (Math.round(leftValue + (WIDTH_MARK / 2))) + ' , ' + (topValue + HEIGHT_MARK);
   }
 
   // обработчики событий на кнопке reset формы
@@ -203,13 +211,8 @@ window.formPage = (function () {
         adFormElement.classList.add('ad-form--disabled');
       }
 
-      // вешаем disabled на все инпуты и select формы .ad-form
-      window.util.setAttributeDisable(adFormElement.querySelectorAll('input'));
-      window.util.setAttributeDisable(adFormElement.querySelectorAll('select'));
-
-      // вешаем disabled на кнопку отправки формы и кнопку reset формы
-      adFormSubmitElement.setAttribute('disabled', true);
-      adFormResetElement.setAttribute('disabled', true);
+      // вешаем disabled на все инпуты, select, textarea
+      window.util.setAttributeDisable(adFormElement.querySelectorAll('fieldset'));
 
       // стартовое значение поля Адрес
       setAddressValue(addressElementRegime.noActive);
@@ -221,19 +224,19 @@ window.formPage = (function () {
       adFormResetElement.removeEventListener('click', onAdFormResetElementClick);
       adFormResetElement.removeEventListener('keydown', onAdFormResetElementKeyDown);
 
+      timeInElement.removeEventListener('input', onTimeInElementInput);
+      timeOutElement.removeEventListener('input', onTimeOutElementInput);
+      typeElement.removeEventListener('input', onTypeElementInput);
+      roomNumberElement.removeEventListener('input', onRoomNumberElementInput);
+      capacityElement.removeEventListener('input', onCapacityElementInput);
     },
 
     // переключает форму в активный режим
     switchFormToActive: function () {
       adFormElement.classList.remove('ad-form--disabled');
 
-      // удаляем disabled на все инпуты и select формы .ad-form
-      window.util.removeAttributeDisable(adFormElement.querySelectorAll('input'));
-      window.util.removeAttributeDisable(adFormElement.querySelectorAll('select'));
-
-      // удаляем disabled c кнопки отправки формы и кнопки reset формы
-      adFormSubmitElement.removeAttribute('disabled');
-      adFormResetElement.removeAttribute('disabled');
+      // удаляем disabled c инпутов, селектов, текстареа
+      window.util.removeAttributeDisable(adFormElement.querySelectorAll('fieldset'));
 
       // вешаем на кнопку reset событие сброса формы и страницы в неактивное исходное состояние
       adFormResetElement.addEventListener('click', onAdFormResetElementClick);
@@ -241,6 +244,12 @@ window.formPage = (function () {
 
       // вешаем событие отправки данных формы на сервер
       adFormElement.addEventListener('submit', onAdFormElementSumbit);
+
+      timeInElement.addEventListener('input', onTimeInElementInput);
+      timeOutElement.addEventListener('input', onTimeOutElementInput);
+      typeElement.addEventListener('input', onTypeElementInput);
+      roomNumberElement.addEventListener('input', onRoomNumberElementInput);
+      capacityElement.addEventListener('input', onCapacityElementInput);
 
       setAddressValue(addressElementRegime.active);
     },

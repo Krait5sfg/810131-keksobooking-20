@@ -6,8 +6,8 @@ window.pin = (function () {
     // возвращает один элемент (метку на карте) на основе переданного шаблона c данными из объекта
     getElementPin: function (sample, object) {
       var newElement = sample.cloneNode(true);
-      var mapPin = newElement.querySelector('.map__pin');
-      var img = newElement.querySelector('img');
+      var mapPinElement = newElement.querySelector('.map__pin');
+      var imgElement = newElement.querySelector('img');
 
       // смещение
       // координаты без смещения распологают элемент верхним левым углом на точке
@@ -16,13 +16,13 @@ window.pin = (function () {
       var offsetY = 70;
 
       // координаты метки с учетом смещения
-      mapPin.style.left = object.location.x - offsetX + 'px';
-      mapPin.style.top = object.location.y - offsetY + 'px';
+      mapPinElement.style.left = object.location.x - offsetX + 'px';
+      mapPinElement.style.top = object.location.y - offsetY + 'px';
 
       // путь к картинке
-      img.setAttribute('src', object.author.avatar);
+      imgElement.setAttribute('src', object.author.avatar);
       // alt картинки
-      img.setAttribute('alt', object.offer.title);
+      imgElement.setAttribute('alt', object.offer.title);
 
       return newElement;
     },

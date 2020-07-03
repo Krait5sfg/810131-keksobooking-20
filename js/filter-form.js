@@ -1,31 +1,80 @@
 'use strict';
-
 // модуль формы-фильтра на карте
 window.filterForm = (function () {
+  var TIMEOUT = 500;
   var mapFiltersElement = document.querySelector('.map__filters');
   var housingTypeElement = document.querySelector('#housing-type');
-  var filter = {
-    housingType: 'any',
-  };
+  var housingPriceElement = document.querySelector('#housing-price');
+  var housingRoomsElement = document.querySelector('#housing-rooms');
+  var housingGuestsElement = document.querySelector('#housing-guests');
+  var lastTimeout;
 
+  function filterSelect(select, objectValue) {
+    switch (true) {
+      case select.value === 'middle':
+        return objectValue >= 10000 && objectValue <= 50000;
+      case select.value === 'low':
+        return objectValue < 10000;
+      case select.value === 'high':
+        return objectValue >= 50000;
+      case select.value !== 'any':
+        return select.value === objectValue.toString();
+    }
+    return true;
+  }
 
-  function onHousingTypeElementInput(evt) {
-    filter.housingType = evt.target.value;
-    window.renderPins.renderPins();
-
-    // удаляет карточку если карточка открыта
-    if (document.querySelector('.map__card')) {
-      document.querySelector('.map__card').remove();
+  function filterCheckbox(objectFeatures) {
+    var checkedCheckboxes = mapFiltersElement.querySelectorAll('.map__checkbox:checked');
+    var fitResults = [];
+    for (var j = 0; j < checkedCheckboxes.length; j++) {
+      if (objectFeatures.includes(checkedCheckboxes[j].value)) {
+        fitResults.push(checkedCheckboxes[j].value);
+      } else {
+        break;
+      }
+    }
+    if (fitResults.length === checkedCheckboxes.length) {
+      return objectFeatures;
+    } else {
+      return false;
     }
   }
 
+  function getFilteredObjects() {
+    var filteredObjects = [];
+    for (var i = 0; i < window.renderPins.objects.length; i++) {
+      if (filteredObjects.length === 5) {
+        break;
+      }
+
+      var object = window.renderPins.objects[i];
+      if (filterSelect(housingTypeElement, object.offer.type) &&
+        filterSelect(housingPriceElement, object.offer.price) &&
+        filterSelect(housingRoomsElement, object.offer.rooms) &&
+        filterSelect(housingGuestsElement, object.offer.guests) &&
+        filterCheckbox(object.offer.features)) {
+        filteredObjects.push(object);
+      }
+    }
+    return filteredObjects;
+  }
+
+  function onMapFiltersElementChange() {
+    if (lastTimeout) {
+      window.clearTimeout(lastTimeout);
+    }
+    lastTimeout = window.setTimeout(function () {
+      var filteredObjects = getFilteredObjects();
+      window.renderPins.renderPins(filteredObjects);
+    }, TIMEOUT);
+  }
+
   return {
-    housingTypeElement: housingTypeElement,
-    filter: filter,
+    mapFiltersElement: mapFiltersElement,
+
     resetFilterForm: function () {
       mapFiltersElement.reset();
-      filter.housingType = 'any';
-      housingTypeElement.removeEventListener('input', onHousingTypeElementInput);
+      mapFiltersElement.removeEventListener('change', onMapFiltersElementChange);
     },
 
     // удаляем disabled на все инпуты и select формы .map__filters
@@ -40,6 +89,8 @@ window.filterForm = (function () {
       window.util.setAttributeDisable(mapFiltersElement.querySelectorAll('select'));
     },
 
-    onHousingTypeElementInput: onHousingTypeElementInput
+    setFilterToActive: function () {
+      mapFiltersElement.addEventListener('change', onMapFiltersElementChange);
+    }
   };
 })();

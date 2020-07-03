@@ -1,5 +1,4 @@
 'use strict';
-
 // отрисовка меток на карте
 window.renderPins = (function () {
   var MAX_COUNT_PIN = 5; // ограничение меток на карте
@@ -17,9 +16,6 @@ window.renderPins = (function () {
   var activeElement;
 
   var mapPinsElement = window.map.mapPinsElement;
-
-  // переменная счетчик для цикла выводящего метки на карту
-  var takeNumber;
 
   // функция получает данные с сервера, выводит на основании данных метки на карту
   // вешает события на обычную метку
@@ -48,15 +44,13 @@ window.renderPins = (function () {
   }
 
   // функция отрисовки меток
-  function renderPins() {
+  function renderPins(filteredObjectsFromFilterForm) {
 
     // фильтрация
-    if (window.filterForm.filter.housingType !== 'any') {
-      filteredObjects = objects.filter(function (it) {
-        return it.offer.type === window.filterForm.filter.housingType;
-      });
+    if (!filteredObjectsFromFilterForm) {
+      filteredObjects = objects.slice(0, MAX_COUNT_PIN);
     } else {
-      filteredObjects = objects;
+      filteredObjects = filteredObjectsFromFilterForm;
     }
 
     // удаляем метки перед новой отрисовкой если есть
@@ -64,11 +58,15 @@ window.renderPins = (function () {
       deletePins();
     }
 
-    var templatePin = document.querySelector('#pin').content;// шаблон метки на карте
+    // если карточка уже открыта - то при новой отрисовке меток закроется
+    if (document.querySelector('.map__card')) {
+      closeCard();
+    }
+
+    var templatePinElement = document.querySelector('#pin').content;// шаблон метки на карте
     var fragment = document.createDocumentFragment();
-    takeNumber = filteredObjects.length > MAX_COUNT_PIN ? MAX_COUNT_PIN : filteredObjects.length;
-    for (var i = 0; i < takeNumber; i++) {
-      var newElement = window.pin.getElementPin(templatePin, filteredObjects[i]);
+    for (var i = 0; i < filteredObjects.length; i++) {
+      var newElement = window.pin.getElementPin(templatePinElement, filteredObjects[i]);
       newElement.querySelector('.map__pin').addEventListener('click', onMapPinClick);
       newElement.querySelector('.map__pin').addEventListener('keydown', onMapPinKeyDown);
       fragment.appendChild(newElement);
@@ -76,7 +74,7 @@ window.renderPins = (function () {
     mapPinsElement.appendChild(fragment);
 
     // массив с метками, нужен для отображения отдельной карточки
-    mapPinsElements = document.querySelectorAll('.map__pin');
+    mapPinsElements = document.querySelectorAll('.map__pin:not(.map__pin--main)');
   }
 
   // обработчик при клике на метку или при нажатии Enter на метку
@@ -110,15 +108,13 @@ window.renderPins = (function () {
     }
 
     // находим какая метка какому соответствует объекту по alt метки
-    var alt = targetElement.alt;
-    var startIndexCount = 1;
-    for (var k = 0; k < takeNumber; k++) {
+    var altAttribute = targetElement.alt;
+    for (var k = 0; k < filteredObjects.length; k++) {
 
-      // начиная с элемента с индексом 1 удаляем со всем меток массива mapPinsElements класс map__pin--active
-      mapPinsElements[startIndexCount].classList.remove('map__pin--active');
-      startIndexCount++;
+      // удаляем со всем меток массива mapPinsElements класс map__pin--active
+      mapPinsElements[k].classList.remove('map__pin--active');
 
-      if (filteredObjects[k].offer.title === alt) {
+      if (filteredObjects[k].offer.title === altAttribute) {
         var cardElement = window.card.getElementCard(filteredObjects[k]);
 
         // если карточка уже открыта то при клике на другую метку текущая карточка закроется
@@ -154,9 +150,7 @@ window.renderPins = (function () {
     document.removeEventListener('keydown', onPopupEscape);
 
     // удаляет карточку
-    if (document.querySelector('.map__card')) {
-      document.querySelector('.map__card').remove();
-    }
+    document.querySelector('.map__card').remove();
 
     // удаляем map__pin--active с метки
     activeElement.classList.remove('map__pin--active');
@@ -164,19 +158,18 @@ window.renderPins = (function () {
 
   // удаляет метки
   function deletePins() {
-    var mapPins = document.querySelector('.map__pins');
-    var mapPinsChildrens = mapPins.children;
-    var numberElements = mapPinsChildrens.length;
+    var mapPinsElementChildrens = mapPinsElement.children;
+    var countElement = mapPinsElementChildrens.length;
     var count = 0;
     var startIndexForRemoving = 2;
-    while (count < numberElements - startIndexForRemoving) {
-      mapPins.removeChild(mapPinsChildrens[startIndexForRemoving]);
+    while (count < countElement - startIndexForRemoving) {
+      mapPinsElement.removeChild(mapPinsElementChildrens[startIndexForRemoving]);
       count++;
     }
   }
 
   return {
-
+    objects: objects,
     // Отрисовывает метки на карте
     pushElementsInPage: function () {
       // получение данных с сервера, onLoad создает метки из этих данных
