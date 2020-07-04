@@ -29,7 +29,7 @@ window.card = (function () {
       newElement.querySelector('.popup__avatar').setAttribute('src', object.author.avatar);
       var elementFields = Array.from(newElement.firstElementChild.children);
       elementFields.forEach(function (element) {
-        if (!element.innerHTML) {
+        if (!element.innerHTML && element.nodeName !== 'IMG') {
           element.style.display = 'none';
         }
       });
