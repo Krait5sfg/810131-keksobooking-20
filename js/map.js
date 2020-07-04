@@ -15,8 +15,8 @@ window.map = (function () {
   var boundMainPin = {
     upper: 48,
     lower: 548,
-    left: -30,
-    right: 1165
+    left: -33,
+    right: 1167
   };
 
   // обработчик перемещения по карте основной метки
