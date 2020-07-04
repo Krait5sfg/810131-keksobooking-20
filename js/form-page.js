@@ -190,10 +190,6 @@ window.formPage = (function () {
   }
 
   return {
-    adFormElement: adFormElement,
-    adFormSubmitElement: adFormSubmitElement,
-    adFormResetElement: adFormResetElement,
-
     // ресет формы
     resetForm: function () {
       adFormElement.reset();

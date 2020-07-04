@@ -70,8 +70,6 @@ window.filterForm = (function () {
   }
 
   return {
-    mapFiltersElement: mapFiltersElement,
-
     resetFilterForm: function () {
       mapFiltersElement.reset();
       mapFiltersElement.removeEventListener('change', onMapFiltersElementChange);
